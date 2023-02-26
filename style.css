@@ -1,0 +1,35 @@
+html {
+    font-family: sans-serif;
+  }
+
+  body {
+    margin: 0;
+  }
+
+  header {
+    background: purple;
+    height: 100px;
+  }
+
+  section {
+      display:flex;
+  }
+
+  h1 {
+    text-align: center;
+    color: white;
+    line-height: 100px;
+    margin: 0;
+  }
+
+  .content {
+    padding: 10px;
+    margin: 10px;
+    background: aqua;
+    height:100%;
+  }
+
+  .frame {
+      height:calc(100vh - 140px);
+      width:calc((100vw/2) - 40px);
+  }
