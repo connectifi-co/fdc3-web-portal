@@ -1,0 +1,22 @@
+<html>
+    <head>
+        <title>App 1</title>
+        <script>
+                document.addEventListener("fdc3Ready", () => {
+                    console.log("fdc3Ready - App 1");
+
+                    fdc3.addContextListener("test", (context) => {
+                        console.log("test context", context);
+                    })
+                });
+            
+            </script>
+        <script type="module" src="/src/fdc3Stub/main.ts"></script>
+    </head>
+    <body>
+        <h1>App 1</h1>
+        <p>This is a demo of a portal app</p>
+        
+    </body>
+
+</html>

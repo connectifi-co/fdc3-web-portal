@@ -1,6 +1,9 @@
 import { createAgent } from '@connectifi/agent-web';
+import { LocalAgent } from './localAgent/main';
+
 
 let fdc3;
+let localAgent : LocalAgent = new LocalAgent();
 
 document.addEventListener("DOMContentLoaded", async () => {
     fdc3 = await createAgent('https://dev.connectifi-interop.com','*@Demo', {
@@ -8,6 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     //set up local bus
+    
 
     //channels
 
@@ -17,6 +21,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     //set up post message responder
 
-    
+
     
 });

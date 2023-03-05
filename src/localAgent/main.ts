@@ -1,5 +1,5 @@
-import { Context } from '@finos/fdc3';
-import { LocalInstance, ChannelInstance } from './types';
+import { guid } from '../common/util';
+import { LocalInstance, ChannelInstance, FDC3Message } from '../common/types';
 
 /**
  * FDC3Stub is a standard implementation of FDC3 that will provide an FDC3 api interface as either
@@ -78,16 +78,32 @@ export class LocalAgent {
     initListeners () {
         //add message listener
         window.addEventListener('message', async (event: MessageEvent) => {
-            const message = JSON.parse(event.data || {});
+            const message : FDC3Message= event.data || {}  as FDC3Message;
+            const messageSource = event.source;
             
+            
+
             //registration
             //send back an instanceId
-            if (message.topic === 'register'){
+            if (message.topic === 'registerInstance'){
                 //generate a guid
+                const instanceId = guid();
+                //add to the localInstances collection
+                this.localInstances.set(instanceId, {
+                    id: instanceId,
+                    channel: 'default',
+                    contextListeners:new Map(),
+                    intentListeners: new Map()
+                });
 
                 //send back as instanceId
-                
-            }
+                messageSource?.postMessage({
+                    topic: message.returnId,
+                    data: {
+                        instanceId: instanceId
+                    }
+                });
+            } 
             //sendHandler
 
             //get instanceId from the message
