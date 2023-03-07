@@ -1,5 +1,9 @@
 import { guid } from '../common/util';
-import { LocalInstance, ChannelInstance, FDC3Message } from '../common/types';
+import { LocalInstance, ChannelInstance, FDC3Message, ContextListenerData, BroadcastData } from '../common/types';
+import { TOPICS } from '../common/topics';
+import { DesktopAgent, Context } from '@finos/fdc3';
+
+
 
 /**
  * FDC3Stub is a standard implementation of FDC3 that will provide an FDC3 api interface as either
@@ -62,7 +66,7 @@ export class LocalAgent {
     //collection of channels for local state
     channels: Map<string, ChannelInstance>;
 
-   
+    fdc3: DesktopAgent | undefined;
 
     constructor () {
 
@@ -74,6 +78,9 @@ export class LocalAgent {
         this.initListeners();
     }
 
+    setFDC3( fdc3: DesktopAgent) {
+        this.fdc3 = fdc3;
+    }
 
     initListeners () {
         //add message listener
@@ -93,7 +100,8 @@ export class LocalAgent {
                     id: instanceId,
                     channel: 'default',
                     contextListeners:new Map(),
-                    intentListeners: new Map()
+                    intentListeners: new Map(),
+                    source: messageSource
                 });
 
                 //send back as instanceId
@@ -107,6 +115,84 @@ export class LocalAgent {
             //sendHandler
 
             //get instanceId from the message
+            if (message.topic === TOPICS.ADD_CONTEXT_LISTENER){
+                //get the instance
+                const instance = this.localInstances.get(message.source);
+                const messageData = message.data as ContextListenerData;
+                //register the listener
+                if (instance){
+                    instance.contextListeners.set(messageData.listenerId, 
+                        {
+                            contextType: messageData.contextType || '*',
+                            handler: (context: Context) => {
+                                //send a context message to the listener source
+                                instance.source?.postMessage({
+                                    topic: TOPICS.CONTEXT,
+                                    data: {
+                                        context: context,
+                                        listenerId: messageData.listenerId
+                                    }
+                                })
+                            }                        
+                        });
+                }
+                
+                //register with external FDC3
+                
+                if (this.fdc3){
+                    this.fdc3.addContextListener(messageData.contextType || '*', (context : Context) => {
+                        instance?.contextListeners?.get(messageData.listenerId)
+                    });
+                } else {
+                    document.addEventListener("fdc3Ready", () => {
+                        if (this.fdc3){
+                            this.fdc3.addContextListener(messageData.contextType || '*', (context : Context) => {
+                                instance?.contextListeners?.forEach( listener => {
+                                    listener.handler.call(this, context);
+                                });
+                            });
+                        }   
+                    });
+                }
+
+                
+                //send a return message
+                messageSource?.postMessage({
+                    topic: message.returnId,
+                    data: {
+
+                    }
+                });
+            }
+
+            else if (message.topic === TOPICS.BROADCAST){
+                const thisInstance = this.localInstances.get(message.source);
+                const messageData = message.data as BroadcastData;
+
+                //send to external
+                if (this.fdc3){
+                    this.fdc3.broadcast(messageData.context);
+                }
+
+                //handle locally
+                //iterate through local instances
+                this.localInstances.forEach((instance : LocalInstance) => {
+                    //prevent echos
+                    let isMatch : boolean = instance.id !== message.source;
+
+                    if (isMatch){
+                        instance.source?.postMessage({
+                            topic: TOPICS.CONTEXT,
+                            data: {
+                                context: messageData.context,
+                               // listenerId: instance.contextListeners.listenerId
+                            }
+                        });
+                    }
+
+
+                });
+            }
 
         });
         

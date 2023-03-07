@@ -1,4 +1,4 @@
-import { Context, ContextHandler, DisplayMetadata } from '@finos/fdc3';
+import { Context, ContextHandler, DisplayMetadata, AppIdentifier } from '@finos/fdc3';
 
 /* 
  * LocalInstance Type
@@ -28,6 +28,7 @@ import { Context, ContextHandler, DisplayMetadata } from '@finos/fdc3';
      channel: string;
      contextListeners: Map<string, ContextListener>;
      intentListeners: Map<string, IntentListener>;
+     source: MessageEventSource | null;
  }
 
  export interface ChannelInstance {
@@ -39,6 +40,7 @@ import { Context, ContextHandler, DisplayMetadata } from '@finos/fdc3';
  export interface ContextListener {
     contextType: string;
     channel?: string;
+    handler: (context: Context) => void
  }
 
  export interface IntentListener {
@@ -62,6 +64,7 @@ import { Context, ContextHandler, DisplayMetadata } from '@finos/fdc3';
  export interface FDC3Message {
      topic: string;
      returnId: string;
+     source: string; //instanceId of the origin of the message
      data: FDC3MessageData;
  }
 
@@ -71,7 +74,122 @@ import { Context, ContextHandler, DisplayMetadata } from '@finos/fdc3';
      description?: string;
  }
 
- export type FDC3MessageData = {};
+ export type FDC3MessageData =
+ | ContextListenerData
+ | IntentListenerData
+ | BroadcastData
+ | CurrentContextData
+ | ChannelMessageData
+ | ListenerMessageData
+ | FindIntentData
+ | FindIntentContextData
+ | OpenData
+ | RaiseIntentData
+ | RaiseIntentContextData
+ | EmptyMessage;
+
+export interface EmptyMessage {
+ context?: Context;
+}
+
+/*
+ describes data for creating a context listener
+*/
+export interface ContextListenerData {
+ listenerId: string;
+ contextType?: string;
+ channel?: string; //id of channel scope (if scoped)
+}
+
+/*
+ describes data for creating an intent listener
+*/
+export interface IntentListenerData {
+ listenerId: string;
+ intent: string;
+}
+
+/*
+ describes data for a broadcast message
+*/
+export interface BroadcastData {
+ context: Context;
+ channel?: string; //id of channel scope (if scoped)
+}
+
+/*
+ describes data for a getCurrentContext message
+*/
+export interface CurrentContextData {
+ contextType?: string;
+ channel: string; //id of channel scope
+}
+
+/*
+ describes data for a message only identifiying a channel (e.g. joinChannel, getOrCreateChannel)
+*/
+export interface ChannelMessageData {
+ channel: string; //id of channel scope
+}
+
+/*
+ describes data for identifiying a listener 
+*/
+export interface ListenerMessageData {
+ listenerId: string;
+}
+
+/*
+ descibes data for the find intent API
+*/
+export interface FindIntentData {
+ intent: string;
+ context?: Context;
+ resultType?: string; //2.0 only
+}
+
+/*
+ descibes data for the find intent by context API
+*/
+export interface FindIntentContextData {
+ context: Context;
+ resultType?: string; //2.0 only
+}
+
+/*
+ describe data for the open API
+*/
+export interface OpenData {
+ target: AppIdentifier;
+ context?: Context | undefined;
+}
+
+/*
+ describe data for raiseIntent API
+*/
+export interface RaiseIntentData {
+ intent: string;
+ context?: Context | undefined;
+ target?: AppIdentifier | undefined;
+}
+
+/*
+ describe data for raiseIntentForContext API
+*/
+export interface RaiseIntentContextData {
+ context: Context;
+ target?: AppIdentifier | undefined;
+}
+
+/*
+ data for intent resolution (from the end user)
+*/
+/*export interface ResolveIntentData {
+ selected: FDC3App;
+ intent: string;
+ context?: Context | undefined;
+}*/
+
 
  export type FDC3ReturnMessageData = {} | RegisterInstanceReturn;
 

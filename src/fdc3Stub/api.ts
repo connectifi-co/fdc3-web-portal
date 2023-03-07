@@ -12,16 +12,33 @@ import {
     AppIdentifier,
     PrivateChannel,
 } from '@finos/fdc3';
-import { sendMessage } from './sendMessage';
-import { ListenerItem, ChannelTypes, ChannelData } from '../common/types';
+import { ListenerItem, ChannelTypes, ChannelData, FDC3ReturnMessage } from '../common/types';
 import { TOPICS } from '../common/topics';
 import { guid, targetToIdentifier } from '../common/util';
-
+import { sendMessage, getReturnHandlers } from './sendMessage';
 
 
 const contextListeners : Map<string, ListenerItem> = new Map();
 
 const intentListeners :  Map<string, Map<string, ListenerItem>> = new Map();
+
+//add a return handler listener
+window.addEventListener('message', async (event: MessageEvent) => {
+    const message : FDC3ReturnMessage= event.data || {}  as FDC3ReturnMessage;
+    console.log("*** message", message);
+
+    if (message.topic === TOPICS.CONTEXT && message.data) {
+        contextListeners.forEach((listener) => {
+            listener.handler?.call(this, message.data as Context);
+        });
+    }
+
+    const returnHandlers = getReturnHandlers();
+    if (returnHandlers.has(message.topic)){
+        return returnHandlers.get(message.topic).call(this, {data:message.data});
+    }
+    
+});
 
 export const createAPI = () : DesktopAgent => {
      /**

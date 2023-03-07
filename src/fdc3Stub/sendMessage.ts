@@ -29,9 +29,11 @@ export const sendMessage = (topic: string, data?: FDC3MessageData, handler? : an
         resolve({data:(message.data || {}), error:message.error});
     };
     returnHandlers.set(returnId, theHandler );
+    const source = instanceId;
      //do everything through window messages?
      window.top?.postMessage({
          topic,
+         source,
          returnId,
          data });
     });

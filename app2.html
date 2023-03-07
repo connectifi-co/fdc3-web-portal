@@ -2,10 +2,33 @@
     <head>
         <title>App 2</title>
         <script type="module" src="/src/fdc3Stub/main.ts"></script>
+        <script>
+                document.addEventListener("fdc3Ready", () => {
+                    console.log("fdc3Ready - App 2");
+
+                    fdc3.addContextListener("fdc3.instrument", (context) => {
+                        const contextField = document.getElementById("context");
+                        contextField.textContent = JSON.stringify(context);
+                    })
+                    const button = document.getElementById("testBroadcast");
+                    if (button){
+                        button.addEventListener("click", () => {
+                            fdc3.broadcast({
+                                type:"fdc3.instrument",
+                                id: {
+                                    ticker: "IBM"
+                                }
+                            });
+                        });
+                    }
+                });
+            
+            </script>
     </head>
     <body>
         <h1>App 2</h1>
         <p>This is a demo of a portal app</p>
-        
+        <button id="testBroadcast">broadcast</button>
+        <div id="context" style="height:300px;width:300px"></div>
     </body>
 </html>
