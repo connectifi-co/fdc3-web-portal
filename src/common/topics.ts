@@ -8,7 +8,7 @@ export const TOPICS = {
     CONTEXT: 'context',
     GET_CURRENT_CONTEXT: 'getCurrentContext',
     GET_OR_CREATE_CHANNEL: 'getOrCreateChannel',
-    GET_SYSTEM_CHANNELS: 'getSystemChannels',
+    GET_USER_CHANNELS: 'getUserChannels',
     LEAVE_CURRENT_CHANNEL: 'leaveCurrentChannel',
     GET_CURRENT_CHANNEL: 'getCurrentChannel',
     JOIN_CHANNEL: 'joinChannel',

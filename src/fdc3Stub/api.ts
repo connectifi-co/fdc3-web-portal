@@ -297,6 +297,7 @@ export const createAPI = () : DesktopAgent => {
     },*/
 
     broadcast: async (context: Context) => {
+        console.log("broadcasting!!!!!");
       await sendMessage(
         TOPICS.BROADCAST,
         { context: context }
@@ -409,7 +410,7 @@ export const createAPI = () : DesktopAgent => {
 
     getUserChannels: async (): Promise<Array<Channel>> => {
       const result = await sendMessage(
-        TOPICS.GET_SYSTEM_CHANNELS,
+        TOPICS.GET_USER_CHANNELS,
         {}
       );
     

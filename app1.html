@@ -10,9 +10,9 @@
                         contextField.textContent = JSON.stringify(context);
                     });
 
-                    const button = document.getElementById("testBroadcast");
-                    if (button){
-                        button.addEventListener("click", () => {
+                    const broadcastButton = document.getElementById("testBroadcast");
+                    if (broadcastButton){
+                        broadcastButton.addEventListener("click", () => {
                             fdc3.broadcast({
                                 type:"fdc3.instrument",
                                 id: {
@@ -21,6 +21,15 @@
                             });
                         });
                     }
+
+                    const getChannelsButton = document.getElementById("testGetChannels");
+                    if (getChannelsButton){
+                        getChannelsButton.addEventListener("click", async () => {
+                            const channels = await fdc3.getUserChannels();
+                            console.log("*** got user channels", channels);
+                        });
+                    }
+
                    
                 });
             
@@ -31,6 +40,7 @@
         <h1>App 1</h1>
         <p>This is a demo of a portal app</p>
         <button id="testBroadcast">broadcast</button>
+        <button id="testGetChannels">get user channels</button>
         <div id="context" style="height:300px;width:300px"></div>
     </body>
 
