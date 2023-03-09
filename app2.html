@@ -21,6 +21,21 @@
                             });
                         });
                     }
+
+                    const joinChannelButton = document.getElementById("testJoinChannel");
+                    if (joinChannelButton){
+                        joinChannelButton.addEventListener("click", async () => {
+                            await fdc3.joinChannel('red');
+                            const channel = await fdc3.getCurrentChannel();
+                            console.log("***channel", channel);
+                            fdc3.broadcast({
+                                type:"fdc3.instrument",
+                                id: {
+                                    ticker: "AAPL"
+                                }
+                            });
+                        });
+                    }
                 });
             
             </script>
@@ -29,6 +44,7 @@
         <h1>App 2</h1>
         <p>This is a demo of a portal app</p>
         <button id="testBroadcast">broadcast</button>
+        <button id="testJoinChannel">join channel</button>
         <div id="context" style="height:300px;width:300px"></div>
     </body>
 </html>

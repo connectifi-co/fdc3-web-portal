@@ -33,9 +33,7 @@ export const getCurrentChannel = async (
   const instance = localAgent.localInstances.get(message.source);
   const channelId = instance?.channel;
   if (!channelId || channelId === 'default'){
-      return {
-          data: null
-      };
+      return;
   }
   else {
       const channel = await fdc3.getOrCreateChannel(channelId);
@@ -51,7 +49,7 @@ export const getCurrentChannel = async (
 
 };
 
-export const getCurrentContext = async (
+export const  getCurrentContext = async (
   localAgent: LocalAgent,
   message: FDC3Message
 ) => {
@@ -70,11 +68,13 @@ export const getCurrentContext = async (
     const channel = await fdc3.getOrCreateChannel(channelId);
     if (channel) {
       const context = await channel.getCurrentContext(contextType);
-      return { data: context };
+      if (context){
+          return { data: context };
+      }
     }
   }
 
-  return { data: null };
+  return;
 };
 
 export const getOrCreateChannel = async (
@@ -101,7 +101,7 @@ export const getOrCreateChannel = async (
     };
   } catch (err) {
     return {
-      data: null,
+      data: {},
       error: { type: err }
     };
   }
@@ -121,7 +121,7 @@ export const leaveCurrentChannel = async (
     }
 
     instance.channel = 'default';
-    instance.channelListener.unsubscribe();
+    instance.channelListener?.unsubscribe();
 
     return;
 };
@@ -146,7 +146,7 @@ export const joinChannel = async (
     let isMatch : boolean = false;
     instance.contextListeners.forEach((listener, listenerId) => {
         
-            isMatch = listener.channel === 'default' && (context.type === '*' || listener.contextType === '*' || context.type === listener.contextType);
+            isMatch = (listener.channel || 'default') === 'default' && (context.type === '*' || listener.contextType === '*' || context.type === listener.contextType);
             if (isMatch){
                 instance.source?.postMessage({
                     topic: TOPICS.CONTEXT,
@@ -161,9 +161,30 @@ export const joinChannel = async (
     };
 
     const channel = await fdc3.getOrCreateChannel(channelId);
-    const listener = await channel.addContextListener(joinListener);
+    const listener = await channel.addContextListener('*', joinListener);
     instance.channel = channelId;
+    //unsubscribe from any pre-existing channelListener
+    if (instance.channelListener) {
+        await instance.channelListener.unsubscribe();
+    }
     instance.channelListener = listener;
+    //get the current context for the new channel
+    const current = await channel.getCurrentContext();
+    if (current){
+        instance.contextListeners.forEach((listener, listenerId) => {
+            
+            if (current.type === '*' || listener.contextType === '*' || current.type === listener.contextType) {
+        
+                instance.source?.postMessage({
+                    topic: TOPICS.CONTEXT,
+                    data: {
+                        context: current,
+                        listenerId: listenerId
+                    }
+                });
+            }
+        });
+    }
 
     return;
 };

@@ -33,7 +33,7 @@ export interface LocalInstance {
   channel: string;
   contextListeners: Map<string, ContextListener>;
   intentListeners: Map<string, IntentListener>;
-  channelListener: Listener; //listener to proxy for the 'joined' channel
+  channelListener?: Listener; //listener to proxy for the 'joined' channel
   source: MessageEventSource | null;
 }
 

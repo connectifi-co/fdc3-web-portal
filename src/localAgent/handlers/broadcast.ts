@@ -1,16 +1,19 @@
 import { LocalAgent } from '../main';
 import { FDC3Message, LocalInstance, BroadcastData } from '../../common/types';
 import { TOPICS } from '../../common/topics';
-import { Context } from '@finos/fdc3';
 
 export const broadcast = async ( localAgent : LocalAgent,  message : FDC3Message) => { 
     const thisInstance = localAgent.localInstances.get(message.source);
     const messageData = message.data as BroadcastData;
 
     //send to external
-    if (localAgent.fdc3){
-        localAgent.fdc3.broadcast(messageData.context);
+    //if instance is 'joined' to a channel, or if this is a broadcast on a specific channel, get the channel and broadcast to it
+    const broadcastChannel = messageData.channel || thisInstance?.channel;
+    if (localAgent.fdc3 && broadcastChannel && broadcastChannel !== 'default'){  
+        const remoteChannel = await localAgent.fdc3.getOrCreateChannel(broadcastChannel);
+        remoteChannel?.broadcast(messageData.context);
     }
+    
     //what is the channel?  it is either explicit on the message, or implicit from channel membership
     //if no channel, no-op
     let channel : string | undefined;
@@ -39,9 +42,9 @@ export const broadcast = async ( localAgent : LocalAgent,  message : FDC3Message
                  if (localAgent.noDefaultChannel){
                      isMatch = !(listenerChannel === 'default' && channel === 'default');
                  }
-                //test context type   
-                isMatch = messageData.context.type === '*' || listener.contextType === '*' || messageData.context.type === listener.contextType;
+                //test context type  - only if the channels line up!
                 if (isMatch){
+                    isMatch = messageData.context.type === '*' || listener.contextType === '*' || messageData.context.type === listener.contextType;
                     instance.source?.postMessage({
                         topic: TOPICS.CONTEXT,
                         data: {

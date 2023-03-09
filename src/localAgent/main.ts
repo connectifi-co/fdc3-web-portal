@@ -112,14 +112,25 @@ export class LocalAgent {
                     intentListeners: new Map(),
                     source: messageSource
                 });
-
-                //send back as instanceId
-                messageSource?.postMessage({
-                    topic: message.returnId,
-                    data: {
-                        instanceId: instanceId
-                    }
-                });
+                if (this.fdc3){
+                    //send back as instanceId
+                    messageSource?.postMessage({
+                        topic: message.returnId,
+                        data: {
+                            instanceId: instanceId
+                        }
+                    });
+                } else {
+                    document.addEventListener('fdc3Ready', () => {
+                       //send back as instanceId
+                    messageSource?.postMessage({
+                        topic: message.returnId,
+                        data: {
+                            instanceId: instanceId
+                        }
+                    }); 
+                    })
+                }
             } 
             //Handlers
             else {

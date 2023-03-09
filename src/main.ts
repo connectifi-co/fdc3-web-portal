@@ -6,7 +6,7 @@ let fdc3;
 let localAgent : LocalAgent = new LocalAgent();
 
 document.addEventListener("DOMContentLoaded", async () => {
-    fdc3 = await createAgent('https://dev.connectifi-interop.com','*@Demo', {
+    fdc3 = await createAgent('https://nicholaskolba.connectifi-interop.com','*@Demo', {
         props: {position:'tr'}
     });
   
