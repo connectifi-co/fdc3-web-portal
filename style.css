@@ -6,8 +6,8 @@ html {
     margin: 0;
   }
 
-  header {
-    background: purple;
+  .header {
+    background: linear-gradient(90deg, rgb(21, 11, 41) 70%, rgb(30, 34, 88));
     height: 100px;
   }
 
@@ -17,19 +17,43 @@ html {
 
   h1 {
     text-align: center;
-    color: white;
+    color: #eee;
+    font-family: Arial, Helvetica, sans-serif;
     line-height: 100px;
     margin: 0;
   }
 
   .content {
-    padding: 10px;
+    padding: 0px;
     margin: 10px;
-    background: aqua;
+    background: #ccc;
     height:100%;
+    filter: drop-shadow(rgb(125, 125, 125) 3px 2px 3px);
+  }
+
+  .titleBar {
+    width:100%;
+    background: linear-gradient(90deg, rgb(21, 11, 41) 70%, rgb(30, 34, 88));
+    height:25px;
+    display: flex;
+    flex-flow:row;
+    justify-content: right;
+    color:#eee;
+  }
+
+  .titleBar button {
+    height:18px;
+    border-radius:3px;
+    background:#999;
+    color:#eee;
+    border:0px;
+    margin-top:3px;
+    margin-right:3px;
+    font-size:16px;
   }
 
   .frame {
       height:calc(100vh - 140px);
       width:calc((100vw/2) - 40px);
+      border:0px;
   }

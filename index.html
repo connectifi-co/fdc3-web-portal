@@ -2,17 +2,33 @@
     <head>
         <link rel="stylesheet" href="style.css">
         <script type="module" src="/src/main.ts"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const popoutButtons = document.querySelectorAll('.popoutButton');
+                popoutButtons.forEach( button => {
+                    button.addEventListener('click', () => {
+                        window.open('http://localhost:5173/single.html')
+                    });
+                });
+            });
+        </script>
     </head>
     <body>
-        <header>
+        <div class='header'>
             <h1>Connectifi Web Portal</h1>
-          </header>
+        </div>
           <section>
             <div class="content">
+                <div class="titleBar">
+                        <button class="popoutButton">+</button>
+                </div>
              <iframe class="frame" src="http://localhost:5173/app1.html"></iframe>
             </div>
       
             <div class="content">
+                    <div class="titleBar">
+                            <button class="popoutButton">+</button>
+                        </div>
                 <iframe class="frame" src="http://localhost:5173/app1.html"></iframe>
             </div>
 
