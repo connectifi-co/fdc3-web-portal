@@ -1,18 +1,18 @@
 import { createAgent, ResolveCallback, IntentResolutionMessage } from "@connectifi/agent-web";
 import { LocalAgent } from "./localAgent/main";
-import { Console } from "console";
 
 
 let fdc3;
-let localAgent: LocalAgent = new LocalAgent();
+const localAgent: LocalAgent = new LocalAgent();
 
 document.addEventListener("DOMContentLoaded", async () => {
   fdc3 = await createAgent(
-    "https://nicholaskolba.connectifi-interop.com",
+    "https://dev.connectifi-interop.com",
     "*@Demo",
     {
-
-       // headless: true,
+        props:{
+            position:"tr"
+        },
         resolverHandler: (message, resolveCallback) => {
             intentResolver(message, resolveCallback);
         },
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         onLoadingStopped: () => {
             //stop the loading UI here
         }
-        }
+    }
     
   );
 
