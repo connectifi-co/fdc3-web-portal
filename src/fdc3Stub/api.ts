@@ -9,8 +9,6 @@ import {
     Channel,
     ImplementationMetadata,
     IntentResolution,
-    AppIdentifier,
-    PrivateChannel,
 } from '@finos/fdc3';
 import { ListenerItem, ChannelTypes, ChannelData, FDC3ReturnMessage } from '../common/types';
 import { TOPICS } from '../common/topics';
@@ -142,7 +140,7 @@ export const createAPI = () : DesktopAgent => {
         
       },
 
-      addContextListener: async (
+      addContextListener:  (
         contextType: ContextHandler | string | null,
         handler?: ContextHandler,
       ) => {
@@ -162,7 +160,7 @@ export const createAPI = () : DesktopAgent => {
           createListenerItem(listenerId, thisListener, thisContextType),
         );
 
-        await sendMessage(
+        sendMessage(
           TOPICS.ADD_CONTEXT_LISTENER,
           {
             listenerId: listenerId,
@@ -177,23 +175,15 @@ export const createAPI = () : DesktopAgent => {
     return channel;
   };
 
-  function openFunc(
-    app: string,
+async function openFunc(
+    app: string | AppMetadata,
     context?: Context | undefined,
-  ): Promise<AppIdentifier>;
-  function openFunc(
-    app: AppIdentifier,
-    context?: Context | undefined,
-  ): Promise<AppIdentifier>;
-  async function openFunc(
-    app: string | AppIdentifier,
-    context?: Context | undefined,
-  ): Promise<AppIdentifier> {
+  ): Promise<void> {
     const target = targetToIdentifier(app);
     const result = await sendMessage(
         TOPICS.OPEN,
         {
-          app: target,
+          target: target,
           context: context,
         }
       );
@@ -202,13 +192,13 @@ export const createAPI = () : DesktopAgent => {
           throw new Error(result.error.type);
       }
 
-      return result.data as AppIdentifier;
+      return;
   }
 
   function raiseIntent(
     intent: string,
     context: Context,
-    app?: AppIdentifier,
+    app?: AppMetadata,
   ): Promise<IntentResolution>;
   function raiseIntent(
     intent: string,
@@ -218,7 +208,7 @@ export const createAPI = () : DesktopAgent => {
   async function raiseIntent(
     intent: string,
     context: Context,
-    app?: AppIdentifier | String,
+    app?: AppMetadata | String,
   ): Promise<IntentResolution> {
     const target = targetToIdentifier(app);
 
@@ -227,7 +217,7 @@ export const createAPI = () : DesktopAgent => {
         {
           intent: intent,
           context: context,
-          app: target
+          target: target
         }
       );
 
@@ -240,7 +230,7 @@ export const createAPI = () : DesktopAgent => {
 
   function raiseIntentForContext(
     context: Context,
-    app?: AppIdentifier,
+    app?: AppMetadata,
   ): Promise<IntentResolution>;
   function raiseIntentForContext(
     context: Context,
@@ -248,33 +238,39 @@ export const createAPI = () : DesktopAgent => {
   ): Promise<IntentResolution>;
   async function raiseIntentForContext(
     context: Context,
-    app?: AppIdentifier | String,
+    app?: AppMetadata | String,
   ): Promise<IntentResolution> {
     const target = targetToIdentifier(app);
+    
     const result = await sendMessage(
         TOPICS.RAISE_INTENT_FOR_CONTEXT,
         {
           context: context,
-          app: target,
+          target: target,
         }
       );
       if (result.error) {
         throw new Error(result.error.type);
-        }
-        return (result.data as IntentResolution);
+      }
+      return (result.data as IntentResolution);
   }
 
   const desktopAgent: DesktopAgent = {
-    getInfo: async () : Promise<ImplementationMetadata> => {
-        const result= await sendMessage(
+    getInfo: () : ImplementationMetadata => {
+        sendMessage(
             TOPICS.GET_INFO,
             {}
-          );
-        
-        if (result.error) {
-            throw new Error(result.error.type);
-        }
-        return result.data as ImplementationMetadata;
+          ).then((result) => {
+            if (result.error) {
+              throw new Error(result.error.type);
+            }
+            return result.data as ImplementationMetadata;
+          }); 
+
+        return {
+            fdc3Version:"1.2",
+            provider: "FDC3Stub"
+        };
     },
 
     open: openFunc,
@@ -309,10 +305,10 @@ export const createAPI = () : DesktopAgent => {
 
     raiseIntentForContext: raiseIntentForContext,
 
-    addContextListener: async (
+    addContextListener: (
       contextType: ContextHandler | string | null,
       handler?: ContextHandler,
-    ): Promise<Listener> => {
+    ): Listener => {
       const thisListener: ContextHandler = handler
         ? handler
         : (contextType as ContextHandler);
@@ -325,7 +321,7 @@ export const createAPI = () : DesktopAgent => {
         createListenerItem(listenerId, thisListener, thisContextType),
       );
 
-      await sendMessage(
+      sendMessage(
         TOPICS.ADD_CONTEXT_LISTENER,
         {
           listenerId: listenerId,
@@ -336,7 +332,7 @@ export const createAPI = () : DesktopAgent => {
       return new FDC3Listener('context', listenerId);
     },
 
-    addIntentListener: async (intent: string, listener: ContextHandler): Promise<Listener> => {
+    addIntentListener: (intent: string, listener: ContextHandler): Listener => {
       const listenerId: string = guid();
       intent = intent;
       if (!intentListeners.has(intent)) {
@@ -346,7 +342,7 @@ export const createAPI = () : DesktopAgent => {
       if (listeners) {
         listeners.set(listenerId, createListenerItem(listenerId, listener));
 
-       await sendMessage(
+      sendMessage(
           TOPICS.ADD_INTENT_LISTENER,
           {
             listenerId: listenerId,
@@ -389,28 +385,10 @@ export const createAPI = () : DesktopAgent => {
         return result.data as Array<AppIntent>;
     },
 
-    getSystemChannels: async (): Promise<Array<Channel>> => {
-        const result = await sendMessage(
-          TOPICS.GET_SYSTEM_CHANNELS,
-          {}
-        );
-      
-        if (result.error) {
-            throw new Error(result.error.type);
-        }
-        const channels = (result.data as Array<ChannelData>).map((c: ChannelData) => {
-          return createChannelObject(
-            c.id,
-            'user',
-            c.displayMetadata || { name: c.id },
-          );
-        });
-        return channels;
-    },
 
-    getUserChannels: async (): Promise<Array<Channel>> => {
+    getSystemChannels: async (): Promise<Array<Channel>> => {
       const result = await sendMessage(
-        TOPICS.GET_USER_CHANNELS,
+        TOPICS.GET_SYSTEM_CHANNELS,
         {}
       );
     
@@ -453,15 +431,6 @@ export const createAPI = () : DesktopAgent => {
       return;
     },
 
-    joinUserChannel: async (channel: string) => {
-        await sendMessage(
-        TOPICS.JOIN_CHANNEL,
-        {
-          channel: channel,
-        }
-      );
-      return;
-    },
 
     leaveCurrentChannel: async () => {
       await sendMessage(
@@ -492,26 +461,8 @@ export const createAPI = () : DesktopAgent => {
           );
     },
 
-    findInstances: async (
-        app: AppIdentifier,
-      ): Promise<Array<AppIdentifier>> => {
-        const result: Array<AppIdentifier> = [app];
-        return result;
-      },
-  
-      getAppMetadata: async (app: AppIdentifier): Promise<AppMetadata> => {
-        return {
-          name: '',
-          appId: app.appId,
-        };
-      },
+ 
 
-      createPrivateChannel: async (): Promise<PrivateChannel> => {
-        const channelId = guid();
-        return createChannelObject(channelId, 'private', {
-          name: channelId,
-        }) as PrivateChannel;
-      },
 
   };
 

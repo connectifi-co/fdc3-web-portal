@@ -2,7 +2,7 @@ import {
   Context,
   ContextHandler,
   DisplayMetadata,
-  AppIdentifier,
+  AppMetadata,
   Listener
 } from "@finos/fdc3";
 
@@ -168,7 +168,7 @@ export interface FindIntentContextData {
  describe data for the open API
 */
 export interface OpenData {
-  target: AppIdentifier;
+  target: AppMetadata;
   context?: Context | undefined;
 }
 
@@ -178,7 +178,7 @@ export interface OpenData {
 export interface RaiseIntentData {
   intent: string;
   context?: Context | undefined;
-  target?: AppIdentifier | undefined;
+  target?: AppMetadata | undefined;
 }
 
 /*
@@ -186,7 +186,7 @@ export interface RaiseIntentData {
 */
 export interface RaiseIntentContextData {
   context: Context;
-  target?: AppIdentifier | undefined;
+  target?: AppMetadata| undefined;
 }
 
 /*

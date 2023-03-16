@@ -1,4 +1,4 @@
-import { AppIdentifier } from '@finos/fdc3';
+import { AppMetadata } from '@finos/fdc3';
 
 export const guid = () : string => {
     const gen = (n?:number):string => {
@@ -23,11 +23,11 @@ export const guid = () : string => {
 
 //convert a string target to an AppIdentifier 
 export const targetToIdentifier = (
-    target: String | AppIdentifier | undefined,
-  ): AppIdentifier | undefined => {
+    target: String | AppMetadata | undefined,
+  ): AppMetadata | undefined => {
     //is target just a string?  if so - treat it as name
     if (typeof target === 'string') {
-      return { appId: target };
+      return { name: target };
     }
-    return target as AppIdentifier;
+    return target as AppMetadata;
   };

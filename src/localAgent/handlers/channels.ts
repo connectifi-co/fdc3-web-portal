@@ -9,7 +9,7 @@ import { noProviderResult } from "./index";
 import { TOPICS } from '../../common/topics';
 
 
-export const getUserChannels = async (
+export const getSystemChannels = async (
   localAgent: LocalAgent
 ) => {
   const fdc3 = localAgent.getFDC3();

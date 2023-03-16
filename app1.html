@@ -49,7 +49,7 @@
             height: 200px;
         }
 
-        #broadcastButtons button {
+        .buttonContainer button {
             margin-right: 3px;
             margin-bottom: 3px;
             border: 0px;
@@ -79,10 +79,23 @@
 
         .section h2 {}
     </style>
-    <script>
+    <script type="module">
+        import { installer } from  "/src/fdc3Stub/main.ts";
 
-        document.addEventListener("fdc3Ready", async () => {
-            console.log("fdc3Ready - App 1");
+        const companies = [
+                    { "Name": "3M Company", "Sector": "Industrials", "Symbol": "MMM", "Contact": "Nick Kolba", "Email": "nkolba@gmail.com" },
+                    { "Name": "A.O. Smith Corp", "Sector": "Industrials", "Symbol": "AOS", "Contact": "Seb Ben M'Barek", "Email": "sebastien.benmbarek@normanandsons.com" },
+                    { "Name": "Abbott Laboratories", "Sector": "Health Care", "Symbol": "ABT", "Contact": "Rob Moffat", "Email": "rob.moffat@hsbc.com" },
+                    { "Name": "AbbVie Inc.", "Sector": "Health Care", "Symbol": "ABBV", "Contact": "Nick Kolba", "Email": "nkolba@gmail.com" },
+                    { "Name": "Abiomed", "Sector": "Health Care", "Symbol": "ABMD", "Contact": "Nick Kolba", "Email": "nkolba@gmail.com" },
+                    { "Name": "Accenture plc", "Sector": "Information Technology", "Symbol": "ACN", "Contact": "Nick Kolba", "Email": "nkolba@gmail.com" },
+                    { "Name": "Activision Blizzard", "Sector": "Information Technology", "Symbol": "ATVI", "Contact": "Rob Moffat", "Email": "rob.moffat@hsbc.com" },
+                    { "Name": "ADM", "Sector": "IConsumer Staples", "Symbol": "ADM", "Contact": "Nick Kolba", "Email": "nkolba@gmail.com" },
+                    { "Name": "Adobe Systems Inc", "Sector": "Information Technology", "Symbol": "ADBE", "Contact": "Seb Ben M'Barek", "Email": "sebastien.benmbarek@normanandsons.com" },
+                    { "Name": "Advance Auto Parts", "Sector": "Consumer Discretionary", "Symbol": "AAP", "Contact": "Seb Ben M'Barek", "Email": "sebastien.benmbarek@normanandsons.com" },
+                ];
+
+       const fdc3 = await installer();
 
             fdc3.addContextListener("fdc3.instrument", (context) => {
                 const contextField = document.getElementById("contextField");
@@ -91,7 +104,8 @@
 
 
             const channelPicker = document.getElementById("channelPicker");
-            const channels = await fdc3.getUserChannels();
+            const channels = await fdc3.getSystemChannels();
+ 
             channels.forEach(channel => {
                 const option = document.createElement("div");
                 option.classList.add('channel');
@@ -113,56 +127,9 @@
             })
 
 
-            const broadcastButton = document.getElementById("testBroadcast");
-            if (broadcastButton) {
-                broadcastButton.addEventListener("click", () => {
-                    fdc3.broadcast({
-                        type: "fdc3.instrument",
-                        id: {
-                            ticker: "IBM"
-                        }
-                    });
-                });
-            }
-
-            const getChannelsButton = document.getElementById("testGetChannels");
-            if (getChannelsButton) {
-                getChannelsButton.addEventListener("click", async () => {
-                    const channels = await fdc3.getUserChannels();
-
-                });
-            }
-
-            const joinChannelButton = document.getElementById("testJoinChannel");
-            if (joinChannelButton) {
-                joinChannelButton.addEventListener("click", async () => {
-                    await fdc3.joinChannel('red');
-                    const channel = await fdc3.getCurrentChannel();
-    
-                    fdc3.broadcast({
-                        type: "fdc3.instrument",
-                        id: {
-                            ticker: "MSFT"
-                        }
-                    });
-                });
-            }
-
-
             const createBroadcastButtons = () => {
                 const container = document.getElementById('broadcastButtons');
-                const companies = [
-                    { "Name": "3M Company", "Sector": "Industrials", "Symbol": "MMM", "Contact": "Nick Kolba", "Email": "nkolba@gmail.com" },
-                    { "Name": "A.O. Smith Corp", "Sector": "Industrials", "Symbol": "AOS", "Contact": "Seb Ben M'Barek", "Email": "sebastien.benmbarek@normanandsons.com" },
-                    { "Name": "Abbott Laboratories", "Sector": "Health Care", "Symbol": "ABT", "Contact": "Rob Moffat", "Email": "rob.moffat@hsbc.com" },
-                    { "Name": "AbbVie Inc.", "Sector": "Health Care", "Symbol": "ABBV", "Contact": "Nick Kolba", "Email": "nkolba@gmail.com" },
-                    { "Name": "Abiomed", "Sector": "Health Care", "Symbol": "ABMD", "Contact": "Nick Kolba", "Email": "nkolba@gmail.com" },
-                    { "Name": "Accenture plc", "Sector": "Information Technology", "Symbol": "ACN", "Contact": "Nick Kolba", "Email": "nkolba@gmail.com" },
-                    { "Name": "Activision Blizzard", "Sector": "Information Technology", "Symbol": "ATVI", "Contact": "Rob Moffat", "Email": "rob.moffat@hsbc.com" },
-                    { "Name": "ADM", "Sector": "IConsumer Staples", "Symbol": "ADM", "Contact": "Nick Kolba", "Email": "nkolba@gmail.com" },
-                    { "Name": "Adobe Systems Inc", "Sector": "Information Technology", "Symbol": "ADBE", "Contact": "Seb Ben M'Barek", "Email": "sebastien.benmbarek@normanandsons.com" },
-                    { "Name": "Advance Auto Parts", "Sector": "Consumer Discretionary", "Symbol": "AAP", "Contact": "Seb Ben M'Barek", "Email": "sebastien.benmbarek@normanandsons.com" },
-                ];
+
 
                 companies.forEach(company => {
                     const button = document.createElement('button');
@@ -176,11 +143,39 @@
 
             };
 
+
+            const createIntentButtons = (target, isContext) => {
+                const container = document.getElementById(target);
+
+
+                companies.forEach(company => {
+                    const button = document.createElement('button');
+                    button.textContent = company.Name;
+                    if (isContext){
+                        button.addEventListener('click', () => {
+                            fdc3.raiseIntentForContext({ type: 'fdc3.instrument', id: { ticker: company.Symbol } });
+                        });
+                    }
+                    else {
+                        button.addEventListener('click', () => {
+                            fdc3.raiseIntent('ViewChart',{ type: 'fdc3.instrument', id: { ticker: company.Symbol } });
+                        
+                        });
+                    }
+                    container.appendChild(button);
+                });
+
+
+            };
+
             createBroadcastButtons();
-        });
+
+            createIntentButtons('intentButtons');
+
+            createIntentButtons('intentContextButtons', true);
+    
 
     </script>
-    <script type="module" src="/src/fdc3Stub/main.ts"></script>
 </head>
 
 <body>
@@ -195,11 +190,24 @@
 
     <div class="section">
         <h2>broadcast</h2>
-        <div id="broadcastButtons">
+        <div id="broadcastButtons" class="buttonContainer">
 
         </div>
 
     </div>
+
+    <div class="section">
+            <h2>intents</h2>
+            <div id="intentButtons" class="buttonContainer">
+    
+            </div>
+
+            <h2>intents for context</h2>
+            <div id="intentContextButtons" class="buttonContainer">
+    
+            </div>
+    
+        </div>
 
     <div class="section">
         <h2>context</h2>

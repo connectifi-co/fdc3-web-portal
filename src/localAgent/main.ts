@@ -122,7 +122,7 @@ export class LocalAgent {
                     });
                 } else {
                     document.addEventListener('fdc3Ready', () => {
-                       //send back as instanceId
+                    //send back as instanceId
                     messageSource?.postMessage({
                         topic: message.returnId,
                         data: {
