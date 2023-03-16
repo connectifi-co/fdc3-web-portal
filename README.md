@@ -8,7 +8,7 @@ The provider code - *FDC3Stub* - is loaded into each app.  The stub exposes an F
 
 ![Stub/Provider Pattern](stub-provider-pattern.png)
 
-** Notes ** 
+**Notes** 
 
 - Stub/Provider pattern should work for apps implemented in either iFrames or in the same DOM (using module scope).  This implementation is currently with iFrames only
 - the FDC3stub currently exposes the proposed `installer()` function for apps to acquire an FDC3 api
@@ -23,7 +23,7 @@ In this example, the FDC3Provider is a *LocalAgent* which implements a local bus
 
 ```
 
-** Notes **
+**Notes**
 - the LocalAgent can support any number of FDC3 providers.  In this example it is using *Connectifi*.
 - the LocalAgent allows apps to broadcast to each other via FDC3 within scope of the web page
 - the local apps have color channel membership  independent of the page they are running on 
