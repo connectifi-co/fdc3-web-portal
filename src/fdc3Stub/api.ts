@@ -20,25 +20,32 @@ const contextListeners : Map<string, ListenerItem> = new Map();
 
 const intentListeners :  Map<string, Map<string, ListenerItem>> = new Map();
 
-//add a return handler listener
+export const setListener = () => {
+  //add a return handler listener
 window.addEventListener('message', async (event: MessageEvent) => {
-    const message : FDC3ReturnMessage= event.data || {}  as FDC3ReturnMessage;
-    console.log("*** message", message);
+  
+  const message : FDC3ReturnMessage= event.data || {}  as FDC3ReturnMessage;
+  console.log("*** message", message);
 
-    if (message.topic === TOPICS.CONTEXT && message.data) {
-        contextListeners.forEach((listener) => {
-            listener.handler?.call(this, message.data as Context);
-        });
-    }
+  if (message.topic === TOPICS.CONTEXT && message.data) {
+      contextListeners.forEach((listener) => {
+          listener.handler?.call(this, message.data as Context);
+      });
+  }
 
-    const returnHandlers = getReturnHandlers();
-    if (returnHandlers.has(message.topic)){
-        return returnHandlers.get(message.topic).call(this, {data:message.data});
-    }
-    
+  const returnHandlers = getReturnHandlers();
+  if (returnHandlers.has(message.topic)){
+      return returnHandlers.get(message.topic).call(this, {data:message.data});
+  }
+  
 });
+}
 
 export const createAPI = () : DesktopAgent => {
+
+  
+
+
      /**
    *  the Listener class
    */
