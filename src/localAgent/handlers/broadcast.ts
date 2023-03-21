@@ -1,6 +1,6 @@
-import { LocalAgent } from '../main';
-import { FDC3Message, LocalInstance, BroadcastData } from '../../common/types';
-import { TOPICS } from '../../common/topics';
+import { LocalAgent } from '@/localAgent/main';
+import { FDC3Message, LocalInstance, BroadcastData } from '@/common/types';
+import { TOPICS } from '@/common/topics';
 
 export const broadcast = async ( localAgent : LocalAgent,  message : FDC3Message) => { 
     const thisInstance = localAgent.localInstances.get(message.source);

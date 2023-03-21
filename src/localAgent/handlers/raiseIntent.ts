@@ -1,6 +1,6 @@
-import { LocalAgent } from '../main';
+import { LocalAgent } from '@/localAgent/main';
 import { noProviderResult } from "./index";
-import { FDC3Message, RaiseIntentData } from '../../common/types';
+import { FDC3Message, RaiseIntentData } from '@/common/types';
 
 
 export const raiseIntent = async ( localAgent : LocalAgent,  message : FDC3Message) => { 

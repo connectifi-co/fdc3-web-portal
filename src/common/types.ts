@@ -3,7 +3,7 @@ import {
   ContextHandler,
   DisplayMetadata,
   AppMetadata,
-  Listener
+  Listener,
 } from "@finos/fdc3";
 
 /*
@@ -186,7 +186,7 @@ export interface RaiseIntentData {
 */
 export interface RaiseIntentContextData {
   context: Context;
-  target?: AppMetadata| undefined;
+  target?: AppMetadata | undefined;
 }
 
 /*
@@ -242,4 +242,3 @@ export class ChannelMetadata implements DisplayMetadata {
 }
 
 export type ChannelTypes = "user" | "app" | "private";
-

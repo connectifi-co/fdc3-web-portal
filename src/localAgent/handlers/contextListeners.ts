@@ -1,6 +1,6 @@
-import { LocalAgent } from '../main';
-import { FDC3Message, ContextListenerData } from '../../common/types';
-import { TOPICS } from '../../common/topics';
+import { LocalAgent } from '@/localAgent/main';
+import { FDC3Message, ContextListenerData } from '@/common/types';
+import { TOPICS } from '@/common/topics';
 import { Context } from '@finos/fdc3';
 
 export const addContextListener = async ( localAgent : LocalAgent,  message : FDC3Message) => { 
@@ -28,7 +28,7 @@ export const addContextListener = async ( localAgent : LocalAgent,  message : FD
      //register with external FDC3
      
      if (localAgent.fdc3){
-         localAgent.fdc3.addContextListener(messageData.contextType || '*', (context : Context) => {
+         localAgent.fdc3.addContextListener(messageData.contextType || '*', (_context : Context) => {
              instance?.contextListeners?.get(messageData.listenerId)
          });
      } else {

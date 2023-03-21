@@ -1,12 +1,12 @@
-import { LocalAgent } from "../main";
+import { LocalAgent } from '@/localAgent/main';
 import {
   FDC3Message,
   CurrentContextData,
   ChannelMessageData,
-} from "../../common/types";
+} from "@/common/types";
 import { Context } from '@finos/fdc3';
 import { noProviderResult } from "./index";
-import { TOPICS } from '../../common/topics';
+import { TOPICS } from '@/common/topics';
 
 
 export const getSystemChannels = async (

@@ -1,9 +1,7 @@
-
 import { createAPI, setListener } from './api';
 import { sendMessage,  setInstanceId } from './sendMessage';
-import { RegisterInstanceReturn } from '../common/types';
+import { RegisterInstanceReturn } from '@/common/types';
 import { DesktopAgent } from '@finos/fdc3';
-
 
 export const installer = async () : Promise<DesktopAgent> => {
     setListener();
@@ -12,7 +10,6 @@ export const installer = async () : Promise<DesktopAgent> => {
     const instanceId = (registrationResult.data as RegisterInstanceReturn).instanceId;
     setInstanceId(instanceId);
 
-    console.log("creating FDC3");
+    console.log("Creating FDC3 Web Agent API");
     return createAPI();
 };
-

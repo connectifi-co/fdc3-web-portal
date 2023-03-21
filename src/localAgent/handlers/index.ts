@@ -1,6 +1,6 @@
-import { FDC3Message, FDC3SendMessageResolution, FDC3ReturnError } from '../../common/types';
-import { TOPICS } from '../../common/topics';
-import { LocalAgent } from '../main';
+import { LocalAgent } from '@/localAgent/main';
+import { FDC3Message, FDC3SendMessageResolution, FDC3ReturnError } from '@/common/types';
+import { TOPICS } from '@/common/topics';
 import { addContextListener } from './contextListeners';
 import { broadcast } from './broadcast';
 import { raiseIntent, raiseIntentForContext } from './raiseIntent';
