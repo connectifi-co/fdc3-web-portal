@@ -9,26 +9,26 @@ import { DesktopAgent } from "@finos/fdc3";
 import { FDC3Handler, fdc3Handlers } from "./handlers";
 
 /**
- * FDC3Stub is a standard implementation of FDC3 that will provide an FDC3 api interface as either
- * a module or global scope.   The FDC3Stub abstracts the actual FDC3 Connection, so that
+ * WebAgent is a standard implementation of FDC3 that will provide an FDC3 api interface as either
+ * a module or global scope.   The WebAgent abstracts the actual FDC3 Connection, so that
  * an app or module can be written to the stub and have an FDC3 provider plugged in after the fact
  *
- * localAgent
+ * WebAgent
  *
- * localAgents handle webpages that are split into AppBoundaries - either by iframes or some other
- * logical boundaries in the page - each boundary is marked by a different instance of the FDC3Stub.
+ * the WebAgent handle webpages that are split into AppBoundaries - either by iframes or some other
+ * logical boundaries in the page - each boundary is marked by a different instance of the WebAgent API.
  *
  * local implementation of a FDC3 Desktop Agent
  * manages state of 'local' channels (system/user & app)
  * registry of intent listeners
  * registry of context listeners
  *
- * a localAgent does NOT
+ * a WebAgent does NOT
  * - connect to a directory
  * - open apps
  * - resolve intents
  *
- * a localAgent DOES
+ * a WebAgent DOES
  * - register each AppBoundary and assign it an instanceId
  * - register local context and intent listeners
  * - route context and intents to local listeners
@@ -59,91 +59,100 @@ import { FDC3Handler, fdc3Handlers } from "./handlers";
  *
  */
 
-export class LocalAgent {
-  noDefaultChannel: boolean = false;
-
-  //collection of 'app' instances or app bounderies local to the page
-  localInstances: Map<string, LocalInstance>;
-
-  //collection of channels for local state
+export class WebAgent {
+  // controls broadcasting ??
+  allowBroadcastOnDefault: boolean = false;
+  // collection of channels for local state
   channels: Map<string, ChannelInstance>;
-
+  // handlers for fdc3 messages
+  handlers: Map<string, FDC3Handler>;
+  // collection of 'app' instances or app bounderies local to the page
+  localInstances: Map<string, LocalInstance>;
+  // underlying desktop agent
   fdc3: DesktopAgent | undefined;
 
-  //handlers for fdc3 messages
-  handlers: Map<string, FDC3Handler>;
-
   constructor() {
-    this.localInstances = new Map();
     this.channels = new Map();
     this.handlers = fdc3Handlers;
+    this.localInstances = new Map();
 
-    //set up listeners
-    this.initListeners();
-  }
-
-  setFDC3(fdc3: DesktopAgent) {
-    console.log("FDC3 Web Agent binding to desktop agent");
-    this.fdc3 = fdc3;
-  }
-
-  getFDC3() {
-    return this.fdc3;
-  }
-
-  initListeners() {
-    //add message listener
+    // set up message listener
     window.addEventListener("message", async (event: MessageEvent) => {
       const message: FDC3Message = event.data || ({} as FDC3Message);
       const messageSource = event.source;
 
-      //registration
-      //send back an instanceId
       if (message.topic === "registerInstance") {
-        //generate a guid
-        const instanceId = guid();
-        //add to the localInstances collection
-        this.localInstances.set(instanceId, {
-          id: instanceId,
-          channel: "default",
-          contextListeners: new Map(),
-          intentListeners: new Map(),
-          source: messageSource,
-        });
-        if (this.fdc3) {
-          //send back as instanceId
-          messageSource?.postMessage({
-            topic: message.returnId,
-            data: {
-              instanceId: instanceId,
-            },
-          });
-        } else {
-          document.addEventListener("fdc3Ready", () => {
-            //send back as instanceId
-            messageSource?.postMessage({
-              topic: message.returnId,
-              data: {
-                instanceId: instanceId,
-              },
-            });
-          });
-        }
-      }
-      //Handlers
-      else {
-        const handler = this.handlers.get(message.topic);
-        if (handler) {
-          const result = (await handler.call(this, this, message)) || {};
-          const returnMessage: FDC3ReturnMessage = {
-            topic: message.returnId,
-            ...result,
-          };
-
-          //send a return message
-          messageSource?.postMessage(returnMessage);
-        }
+        // handle registration
+        this.handleRegistration(message, messageSource);
+      } else {
+        // handle fdc3 messages
+        this.handleMessage(message, messageSource);
       }
     });
+  }
+
+  // bind to an FDC3 implementation
+  bind(fdc3: DesktopAgent) {
+    console.log("FDC3 Web Agent binding to desktop agent");
+    this.fdc3 = fdc3;
+  }
+
+  // return the underlying implementation - used by the handlers
+  getFDC3() {
+    return this.fdc3;
+  }
+
+  // handle web agent api registration
+  handleRegistration(
+    message: FDC3Message,
+    messageSource: MessageEventSource | null
+  ) {
+    // generate a guid
+    const instanceId = guid();
+    // add to the localInstances collection
+    this.localInstances.set(instanceId, {
+      id: instanceId,
+      channel: "default",
+      contextListeners: new Map(),
+      intentListeners: new Map(),
+      source: messageSource,
+    });
+    if (this.fdc3) {
+      this.sendHandshake(message, messageSource, instanceId);
+    } else {
+      document.addEventListener("fdc3Ready", () => {
+        this.sendHandshake(message, messageSource, instanceId);
+      });
+    }
+  }
+
+  // send back the instanceId to the api
+  sendHandshake(
+    message: FDC3Message,
+    messageSource: MessageEventSource | null,
+    instanceId: string
+  ) {
+    messageSource?.postMessage({
+      topic: message.returnId,
+      data: {
+        instanceId: instanceId,
+      },
+    });
+  }
+
+  async handleMessage(
+    message: FDC3Message,
+    messageSource: MessageEventSource | null
+  ) {
+    const handler = this.handlers.get(message.topic);
+    if (handler) {
+      const result = (await handler.call(this, this, message)) || {};
+      const returnMessage: FDC3ReturnMessage = {
+        topic: message.returnId,
+        ...result,
+      };
+      //send a return message
+      messageSource?.postMessage(returnMessage);
+    }
   }
 }

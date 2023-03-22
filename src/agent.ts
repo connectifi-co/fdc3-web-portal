@@ -3,10 +3,10 @@ import {
   ResolveCallback,
   IntentResolutionMessage,
 } from "@connectifi/agent-web";
-import { LocalAgent } from "./main";
+import { WebAgent } from "./main";
 
 let fdc3;
-const localAgent: LocalAgent = new LocalAgent();
+const localAgent: WebAgent = new WebAgent();
 
 document.addEventListener("DOMContentLoaded", async () => {
   fdc3 = await createAgent("https://dev.connectifi-interop.com", "*@Demo", {
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   if (fdc3) {
-    localAgent.setFDC3(fdc3);
+    localAgent.bind(fdc3);
     document.dispatchEvent(new CustomEvent("fdc3Ready"));
   }
 });

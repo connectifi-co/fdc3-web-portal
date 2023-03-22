@@ -24,7 +24,6 @@ export const sendMessage = (
   return new Promise((resolve) => {
     const returnId = `${topic}_${guid()}`;
     const theHandler = async (message: FDC3ReturnMessage) => {
-      console.log("event", message);
       if (handler) {
         resolve(await handler.call(this, data));
       }

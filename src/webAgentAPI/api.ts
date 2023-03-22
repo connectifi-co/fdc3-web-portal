@@ -27,8 +27,6 @@ const intentListeners: Map<string, Map<string, ListenerItem>> = new Map();
 export const setListener = () => {
   window.addEventListener("message", async (event: MessageEvent) => {
     const message: FDC3ReturnMessage = event.data || ({} as FDC3ReturnMessage);
-    console.log("*** message", message);
-
     if (message.topic === TOPICS.CONTEXT && message.data) {
       contextListeners.forEach((listener) => {
         listener.handler?.call(this, message.data as Context);

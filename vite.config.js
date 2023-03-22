@@ -11,6 +11,11 @@ export default defineConfig(({ command }) => {
       build: {
         outDir: './serve'
       },
+      resolve: {
+        alias: {
+          '@': resolve(__dirname, 'src'),
+        },
+      },
       server: {
           port: port,
           proxy: {

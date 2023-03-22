@@ -1,4 +1,4 @@
-import { installer } from "./fdc3Stub/main";
-import { LocalAgent } from "./localAgent/main";
+import { WebAgent } from "./webAgent/main";
+import { createWebAgentAPI } from "./webAgentAPI/main";
 
-export { installer, LocalAgent };
+export { WebAgent, createWebAgentAPI };
