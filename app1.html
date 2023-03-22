@@ -80,7 +80,7 @@
         .section h2 {}
     </style>
     <script type="module">
-        import { installer } from  "/src/fdc3Stub/main.ts";
+        import { createWebAgentAPI } from  "/src/webAgentAPI/main.ts";
 
         const companies = [
                     { "Name": "3M Company", "Sector": "Industrials", "Symbol": "MMM", "Contact": "Nick Kolba", "Email": "nkolba@gmail.com" },
@@ -95,7 +95,7 @@
                     { "Name": "Advance Auto Parts", "Sector": "Consumer Discretionary", "Symbol": "AAP", "Contact": "Seb Ben M'Barek", "Email": "sebastien.benmbarek@normanandsons.com" },
                 ];
 
-       const fdc3 = await installer();
+       const fdc3 = await createWebAgentAPI();
 
             fdc3.addContextListener("fdc3.instrument", (context) => {
                 const contextField = document.getElementById("contextField");
