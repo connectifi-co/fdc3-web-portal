@@ -2,6 +2,8 @@ import {
   createAgent,
   ResolveCallback,
   IntentResolutionMessage,
+  ResolutionType,
+  AppIntentResult,
 } from "@connectifi/agent-web";
 import { WebAgent } from "./main";
 
@@ -34,7 +36,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       menus.push(intentMenu);
 
       //iterate through the results
-      message.data.forEach((result: any) => {
+      let results:AppIntentResult[] = [];
+      if ( message.resolutionType === ResolutionType.Intent ) {
+        results = [message.data as AppIntentResult];
+      } else if ( message.resolutionType === ResolutionType.Context ) {
+        results = message.data as AppIntentResult[];
+      }
+      results.forEach((result: any) => {
         const menuItem = document.createElement("div");
         menuItem.innerText = result.intent.displayName;
         intentMenu?.appendChild(menuItem);
@@ -49,7 +57,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.log("resolve resolver", context);
             resolveCallback.call(
               this,
-              message.eventId,
               app,
               result.intent.name,
               context
