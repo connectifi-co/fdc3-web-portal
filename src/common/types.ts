@@ -189,6 +189,15 @@ export interface RaiseIntentContextData {
   target?: AppMetadata | undefined;
 }
 
+
+  /*
+    describes an incoming Context message
+  */
+ export interface ContextMessage {
+  context: Context;
+  listenerId: string;
+ }
+
 /*
  data for intent resolution (from the end user)
 */
@@ -198,7 +207,7 @@ export interface RaiseIntentContextData {
  context?: Context | undefined;
 }*/
 
-export type FDC3ReturnMessageData = {} | RegisterInstanceReturn;
+export type FDC3ReturnMessageData = {} | RegisterInstanceReturn | ContextMessage;
 
 export interface RegisterInstanceReturn {
   instanceId: string;
