@@ -38,11 +38,14 @@ export const broadcast = async (localAgent: WebAgent, message: FDC3Message) => {
           isMatch = (listenerChannel === "default" && broadcastChannel === "default");
         }
         //test context type  - only if the channels line up!
-        if (isMatch) {
-          isMatch =
+        isMatch = 
+            isMatch && (
             messageData.context.type === "*" ||
             listener.contextType === "*" ||
-            messageData.context.type === listener.contextType;
+            messageData.context.type === listener.contextType
+            );
+
+        if (isMatch) {       
           instance.source?.postMessage({
             topic: TOPICS.CONTEXT,
             data: {

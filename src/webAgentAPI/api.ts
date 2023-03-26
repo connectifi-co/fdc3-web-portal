@@ -15,6 +15,7 @@ import {
   ChannelTypes,
   ChannelData,
   FDC3ReturnMessage,
+  ContextMessage
 } from "@/common/types";
 import { TOPICS } from "@/common/topics";
 import { guid, targetToIdentifier } from "@/common/util";
@@ -28,8 +29,9 @@ export const setListener = () => {
   window.addEventListener("message", async (event: MessageEvent) => {
     const message: FDC3ReturnMessage = event.data || ({} as FDC3ReturnMessage);
     if (message.topic === TOPICS.CONTEXT && message.data) {
+      
       contextListeners.forEach((listener) => {
-        listener.handler?.call(this, message.data as Context);
+        listener.handler?.call(this, (message.data as ContextMessage).context as Context);
       });
     }
 
@@ -140,7 +142,7 @@ export const createAPI = (): DesktopAgent => {
         const listenerId: string = guid();
 
         console.log(
-          "******************* addContextListenener for channel",
+          "******************* addContextListener for channel",
           channel
         );
 
