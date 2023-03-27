@@ -6,7 +6,7 @@ This is a pattern for enabling apps to use a single library for FDC3 regardless 
 
 The provider code - is loaded into each app/component via the *createcreateWebAgentAPI* call .  This returns an FDC3 API and uses `postMessage` to discover and then bind to a *FDC3Provider* which owns the FDC3 implementation.  In this example, the provider is a *WebAgent* using *Connectifi* for interop outside of the web page.
 
-![API/Provider Pattern](api-provider-pattern.png)
+![API/Provider Pattern](provider-pattern.png)
 
 **Notes** 
 
