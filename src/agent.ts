@@ -79,6 +79,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (fdc3) {
     localAgent.bind(fdc3);
+    // localAgent.allowBroadcastOnDefault = true;
     document.dispatchEvent(new CustomEvent("fdc3Ready"));
   }
 });
