@@ -19,7 +19,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       message: IntentResolutionMessage,
       resolveCallback: ResolveCallback
     ) => {
-      console.log("Intent Resolver function called", message);
       //create resolver UI
       //when the user selects a result, call the resolverCallback like so:
       //resolveCallback.call(this, message.eventId, app, result.intent.name, context);
@@ -54,7 +53,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           appItem.textContent =
             app.details.directoryData.title || app.details.directoryData.name;
           appItem.addEventListener("click", async () => {
-            console.log("resolve resolver", context);
             resolveCallback.call(
               this,
               app,
@@ -81,6 +79,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (fdc3) {
     localAgent.bind(fdc3);
+    // localAgent.allowBroadcastOnDefault = true;
     document.dispatchEvent(new CustomEvent("fdc3Ready"));
   }
 });
