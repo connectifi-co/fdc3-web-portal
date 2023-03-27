@@ -60,7 +60,7 @@ import { FDC3Handler, fdc3Handlers } from "./handlers";
  */
 
 export class WebAgent {
-  // controls broadcasting ??
+  // controls ability to broadcast on the "default" channel
   allowBroadcastOnDefault: boolean = false;
   // collection of channels for local state
   channels: Map<string, ChannelInstance>;
@@ -93,7 +93,6 @@ export class WebAgent {
 
   // bind to an FDC3 implementation
   bind(fdc3: DesktopAgent) {
-    console.log("FDC3 Web Agent binding to desktop agent");
     this.fdc3 = fdc3;
   }
 

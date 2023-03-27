@@ -11,6 +11,5 @@ export const createWebAgentAPI = async (): Promise<DesktopAgent> => {
     .instanceId;
   setInstanceId(instanceId);
 
-  console.log("Creating FDC3 Web Agent API");
   return createAPI();
 };

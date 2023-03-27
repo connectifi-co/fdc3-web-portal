@@ -141,11 +141,6 @@ export const createAPI = (): DesktopAgent => {
         const thisContextType = handler ? (contextType as string) : undefined;
         const listenerId: string = guid();
 
-        console.log(
-          "******************* addContextListener for channel",
-          channel
-        );
-
         contextListeners.set(
           listenerId,
           createListenerItem(listenerId, thisListener, thisContextType)
@@ -267,7 +262,6 @@ export const createAPI = (): DesktopAgent => {
     },*/
 
     broadcast: async (context: Context) => {
-      console.log("broadcasting!!!!!");
       await sendMessage(TOPICS.BROADCAST, { context: context });
       return;
     },
@@ -286,7 +280,6 @@ export const createAPI = (): DesktopAgent => {
       const thisContextType: string | undefined =
         contextType && handler ? (contextType as string) : undefined;
       const listenerId: string = guid();
-      console.log("add context listener", listenerId);
       contextListeners.set(
         listenerId,
         createListenerItem(listenerId, thisListener, thisContextType)
