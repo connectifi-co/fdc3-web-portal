@@ -29,7 +29,7 @@
     "format": "npm run format:scripts && npm run format:styles"
   },
   "dependencies": {
-    "@connectifi/agent-web": "1.2.1",
+    "@connectifi/agent-web": "1.2.3",
     "@finos/fdc3": "^1.2.0"
   },
   "devDependencies": {
