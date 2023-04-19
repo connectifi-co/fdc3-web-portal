@@ -3,6 +3,7 @@ import { FDC3Message, ContextListenerData } from "@/common/types";
 import { TOPICS } from "@/common/topics";
 import { Context } from "@finos/fdc3";
 
+
 export const addContextListener = async (
   localAgent: WebAgent,
   message: FDC3Message
@@ -10,16 +11,19 @@ export const addContextListener = async (
   //get the instance
   const instance = localAgent.localInstances.get(message.source);
   const messageData = message.data as ContextListenerData;
+
   //register the listener
   if (instance) {
     instance.contextListeners.set(messageData.listenerId, {
       contextType: messageData.contextType || "*",
+      channel: messageData.channel || 'default',
       handler: (context: Context) => {
         //send a context message to the listener source
         instance.source?.postMessage({
           topic: TOPICS.CONTEXT,
           data: {
             context: context,
+            channel: messageData.channel,
             listenerId: messageData.listenerId,
           },
         });
@@ -28,32 +32,52 @@ export const addContextListener = async (
   }
 
   //register with external FDC3
-
-  if (localAgent.fdc3) {
-    localAgent.fdc3.addContextListener(
-      messageData.contextType || "*",
-      (context: Context) => {
-
-       // instance?.contextListeners?.get(messageData.listenerId);
+  //handle setting listener on a channel scope
+  const listenerHandler = (context: Context) => {
        instance?.contextListeners?.forEach((listener) => {
-        listener.handler.call(this, context);
+        let match = true;
+        if (messageData.channel && messageData.channel !== listener.channel){
+          match = false;
+        }
+        if (messageData.contextType && messageData.contextType !== listener.contextType){
+          match = false;
+        }
+        if (match){
+          listener.handler.call(this, context);
+        }
       });
+    };
+
+
+    const setListener = async () => {
+      if (! localAgent?.fdc3){
+        return;
       }
-    );
-  } else {
-    document.addEventListener("fdc3Ready", () => {
-      if (localAgent.fdc3) {
+  
+      if (messageData.channel) {
+        const channel = await localAgent.fdc3.getOrCreateChannel(messageData.channel);
+        channel.addContextListener(
+          messageData.contextType || "*",
+          listenerHandler
+        );
+      } else {
         localAgent.fdc3.addContextListener(
           messageData.contextType || "*",
-          (context: Context) => {
-            instance?.contextListeners?.forEach((listener) => {
-              listener.handler.call(this, context);
-            });
-          }
+          listenerHandler
         );
+        
       }
-    });
-  }
+    };
+
+    if (localAgent.fdc3) {
+      await setListener();
+    } else {
+      document.addEventListener("fdc3Ready", async () => {
+        if (localAgent.fdc3) {
+          await setListener();
+        }
+      });
+    }
 
   return;
-};
+  };

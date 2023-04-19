@@ -217,6 +217,7 @@ export interface ListenerItem {
   id?: string;
   handler?: ContextHandler;
   contextType?: string;
+  channel?: string;
 }
 
 /**

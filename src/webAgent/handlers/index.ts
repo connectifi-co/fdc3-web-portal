@@ -8,12 +8,14 @@ import { TOPICS } from "@/common/topics";
 import { addContextListener } from "./contextListeners";
 import { broadcast } from "./broadcast";
 import { raiseIntent, raiseIntentForContext } from "./raiseIntent";
+import { getOrCreateChannel } from './channels';
 import {
   getSystemChannels,
   joinChannel,
   getCurrentChannel,
   getCurrentContext,
   leaveCurrentChannel,
+  getOrCreateChannel
 } from "./channels";
 
 export type FDC3Handler = (
@@ -39,6 +41,7 @@ fdc3Handlers.set(TOPICS.ADD_CONTEXT_LISTENER, addContextListener);
 fdc3Handlers.set(TOPICS.BROADCAST, broadcast);
 fdc3Handlers.set(TOPICS.GET_SYSTEM_CHANNELS, getSystemChannels);
 fdc3Handlers.set(TOPICS.JOIN_CHANNEL, joinChannel);
+fdc3Handlers.set(TOPICS.GET_OR_CREATE_CHANNEL, getOrCreateChannel);
 fdc3Handlers.set(TOPICS.GET_CURRENT_CHANNEL, getCurrentChannel);
 fdc3Handlers.set(TOPICS.GET_CURRENT_CONTEXT, getCurrentContext);
 fdc3Handlers.set(TOPICS.LEAVE_CURRENT_CHANNEL, leaveCurrentChannel);
