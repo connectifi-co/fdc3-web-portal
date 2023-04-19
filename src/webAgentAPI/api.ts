@@ -21,6 +21,7 @@ import { TOPICS } from "@/common/topics";
 import { guid, targetToIdentifier } from "@/common/util";
 import { sendMessage, getReturnHandlers } from "./sendMessage";
 
+
 const contextListeners: Map<string, ListenerItem> = new Map();
 
 const intentListeners: Map<string, Map<string, ListenerItem>> = new Map();
@@ -29,10 +30,12 @@ export const setListener = () => {
   window.addEventListener("message", async (event: MessageEvent) => {
     const message: FDC3ReturnMessage = event.data || ({} as FDC3ReturnMessage);
     if (message.topic === TOPICS.CONTEXT && message.data) {
-      
-      contextListeners.forEach((listener) => {
-        listener.handler?.call(this, (message.data as ContextMessage).context as Context);
-      });
+      const contextMessage : ContextMessage = message.data as ContextMessage;
+  
+      if (contextListeners.has(contextMessage.listenerId)){
+        const listener = contextListeners.get(contextMessage.listenerId);
+        listener?.handler?.call(this, (message.data as ContextMessage).context as Context);
+      }
     }
 
     const returnHandlers = getReturnHandlers();
@@ -87,18 +90,20 @@ export const createAPI = (): DesktopAgent => {
     id?: string;
     handler?: ContextHandler;
     contextType?: string;
+    channel?: string;
   }
 
   const createListenerItem = (
     id: string,
     handler: ContextHandler,
-    contextType?: string
+    contextType?: string,
+    channel?: string
   ): ListenerItem => {
     const listener: ListenerItem = {};
     listener.id = id;
     listener.handler = handler;
     listener.contextType = contextType;
-
+    listener.channel = channel;
     return listener;
   };
 
@@ -143,7 +148,7 @@ export const createAPI = (): DesktopAgent => {
 
         contextListeners.set(
           listenerId,
-          createListenerItem(listenerId, thisListener, thisContextType)
+          createListenerItem(listenerId, thisListener, thisContextType, channel.id)
         );
 
         sendMessage(TOPICS.ADD_CONTEXT_LISTENER, {

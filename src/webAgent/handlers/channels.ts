@@ -92,7 +92,7 @@ export const getOrCreateChannel = async (
         displayMetadata: channel.displayMetadata,
       },
     };
-  } catch (err) {
+  } catch (err: any) {
     return {
       data: {},
       error: { type: err },
