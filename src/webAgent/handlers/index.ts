@@ -8,7 +8,6 @@ import { TOPICS } from "@/common/topics";
 import { addContextListener } from "./contextListeners";
 import { broadcast } from "./broadcast";
 import { raiseIntent, raiseIntentForContext } from "./raiseIntent";
-import { getOrCreateChannel } from './channels';
 import {
   getSystemChannels,
   joinChannel,
