@@ -32,8 +32,12 @@ export const addContextListener = async (
   if (localAgent.fdc3) {
     localAgent.fdc3.addContextListener(
       messageData.contextType || "*",
-      (_context: Context) => {
-        instance?.contextListeners?.get(messageData.listenerId);
+      (context: Context) => {
+
+       // instance?.contextListeners?.get(messageData.listenerId);
+       instance?.contextListeners?.forEach((listener) => {
+        listener.handler.call(this, context);
+      });
       }
     );
   } else {

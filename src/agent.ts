@@ -9,6 +9,7 @@ import { WebAgent } from "./main";
 
 let fdc3;
 const localAgent: WebAgent = new WebAgent();
+localAgent.allowBroadcastOnDefault = true;
 
 document.addEventListener("DOMContentLoaded", async () => {
   fdc3 = await createAgent("https://dev.connectifi-interop.com", "*@Demo", {
