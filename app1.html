@@ -135,7 +135,13 @@
                     const button = document.createElement('button');
                     button.textContent = company.Name;
                     button.addEventListener('click', () => {
-                        fdc3.broadcast({ type: 'fdc3.instrument', id: { ticker: company.Symbol } });
+                        fdc3.broadcast({ 
+                            type: 'fdc3.instrument', 
+                            name: company.Name, 
+                            id: { 
+                                ticker: company.Symbol 
+                            }
+                        });
                     });
                     container.appendChild(button);
                 });

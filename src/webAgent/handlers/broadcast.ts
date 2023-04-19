@@ -13,12 +13,16 @@ export const broadcast = async (localAgent: WebAgent, message: FDC3Message) => {
     return;
   }
 
-  // if we do have a non-default channel, broadcast externally
+  // if we do have a non-default channel, broadcast externally on that specific channel
   if (localAgent.fdc3 && broadcastChannel && broadcastChannel !== "default" ) {
     const remoteChannel = await localAgent.fdc3.getOrCreateChannel(
       broadcastChannel as string
     );
     remoteChannel?.broadcast(messageData.context);
+  } 
+  //if allowBroadcastOnDefault is set, then broadcast externally on the fdc3 scope
+  else if (localAgent.allowBroadcastOnDefault) {
+    localAgent.fdc3.broadcast(messageData.context);
   }
 
   // broadcast to all the other local intances which have context listeners
