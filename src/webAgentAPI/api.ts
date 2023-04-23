@@ -19,33 +19,18 @@ import {
 } from "@/common/types";
 import { TOPICS } from "@/common/topics";
 import { guid, targetToIdentifier } from "@/common/util";
-import { sendMessage, getReturnHandlers } from "./sendMessage";
+import { FDC3LocalInstance } from "./sendMessage";
 
 
-const contextListeners: Map<string, ListenerItem> = new Map();
 
-const intentListeners: Map<string, Map<string, ListenerItem>> = new Map();
 
-export const setListener = () => {
-  window.addEventListener("message", async (event: MessageEvent) => {
-    const message: FDC3ReturnMessage = event.data || ({} as FDC3ReturnMessage);
-    if (message.topic === TOPICS.CONTEXT && message.data) {
-      const contextMessage : ContextMessage = message.data as ContextMessage;
+
+export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
+
   
-      if (contextListeners.has(contextMessage.listenerId)){
-        const listener = contextListeners.get(contextMessage.listenerId);
-        listener?.handler?.call(this, (message.data as ContextMessage).context as Context);
-      }
-    }
 
-    const returnHandlers = getReturnHandlers();
-    if (returnHandlers.has(message.topic)) {
-      return returnHandlers.get(message.topic).call(this, { data: message.data });
-    }
-  });
-}
 
-export const createAPI = (): DesktopAgent => {
+
   /**
    *  the Listener class
    */
@@ -65,18 +50,18 @@ export const createAPI = (): DesktopAgent => {
 
       this.unsubscribe = () => {
         if (this.type === "context") {
-          contextListeners.delete(this.id);
+          connection.contextListeners.delete(this.id);
 
-          sendMessage(TOPICS.DROP_CONTEXT_LISTENER, {
+          connection.sendMessage(TOPICS.DROP_CONTEXT_LISTENER, {
             listenerId: this.id,
           });
         } else if (this.type === "intent" && this.intent) {
-          const listeners = intentListeners.get(this.intent);
+          const listeners = connection.intentListeners.get(this.intent);
           if (listeners) {
             listeners.delete(this.id);
           }
 
-          sendMessage(TOPICS.DROP_INTENT_LISTENER, {
+          connection.sendMessage(TOPICS.DROP_INTENT_LISTENER, {
             listenerId: this.id,
           });
         }
@@ -117,14 +102,14 @@ export const createAPI = (): DesktopAgent => {
       type: type,
       displayMetadata: displayMetadata,
       broadcast: async (context: Context) => {
-        await sendMessage(TOPICS.BROADCAST, {
+        await connection.sendMessage(TOPICS.BROADCAST, {
           context: context,
           channel: channel.id,
         });
         return;
       },
       getCurrentContext: async (contextType?: string) => {
-        const result = await sendMessage(TOPICS.GET_CURRENT_CONTEXT, {
+        const result = await connection.sendMessage(TOPICS.GET_CURRENT_CONTEXT, {
           channel: channel.id,
           contextType: contextType,
         });
@@ -146,12 +131,12 @@ export const createAPI = (): DesktopAgent => {
         const thisContextType = handler ? (contextType as string) : undefined;
         const listenerId: string = guid();
 
-        contextListeners.set(
+        connection.contextListeners.set(
           listenerId,
           createListenerItem(listenerId, thisListener, thisContextType, channel.id)
         );
 
-        sendMessage(TOPICS.ADD_CONTEXT_LISTENER, {
+        connection.sendMessage(TOPICS.ADD_CONTEXT_LISTENER, {
           listenerId: listenerId,
           channel: channel.id,
           contextType: thisContextType,
@@ -168,7 +153,7 @@ export const createAPI = (): DesktopAgent => {
     context?: Context | undefined
   ): Promise<void> {
     const target = targetToIdentifier(app);
-    const result = await sendMessage(TOPICS.OPEN, {
+    const result = await connection.sendMessage(TOPICS.OPEN, {
       target: target,
       context: context,
     });
@@ -197,7 +182,7 @@ export const createAPI = (): DesktopAgent => {
   ): Promise<IntentResolution> {
     const target = targetToIdentifier(app);
 
-    const result = await sendMessage(TOPICS.RAISE_INTENT, {
+    const result = await connection.sendMessage(TOPICS.RAISE_INTENT, {
       intent: intent,
       context: context,
       target: target,
@@ -223,7 +208,7 @@ export const createAPI = (): DesktopAgent => {
   ): Promise<IntentResolution> {
     const target = targetToIdentifier(app);
 
-    const result = await sendMessage(TOPICS.RAISE_INTENT_FOR_CONTEXT, {
+    const result = await connection.sendMessage(TOPICS.RAISE_INTENT_FOR_CONTEXT, {
       context: context,
       target: target,
     });
@@ -235,7 +220,7 @@ export const createAPI = (): DesktopAgent => {
 
   const desktopAgent: DesktopAgent = {
     getInfo: (): ImplementationMetadata => {
-      sendMessage(TOPICS.GET_INFO, {}).then((result) => {
+      connection.sendMessage(TOPICS.GET_INFO, {}).then((result) => {
         if (result.error) {
           throw new Error(result.error.type);
         }
@@ -251,7 +236,7 @@ export const createAPI = (): DesktopAgent => {
     open: openFunc,
 
     /*async (app: AppIdentifier, context?: Context) : Promise<AppIdentifier> => {
-      const result = await sendMessage(
+      const result = await connection.sendMessage(
         TOPICS.OPEN,
         {
           app: app,
@@ -267,7 +252,7 @@ export const createAPI = (): DesktopAgent => {
     },*/
 
     broadcast: async (context: Context) => {
-      await sendMessage(TOPICS.BROADCAST, { context: context });
+      await connection.sendMessage(TOPICS.BROADCAST, { context: context });
       return;
     },
 
@@ -285,12 +270,12 @@ export const createAPI = (): DesktopAgent => {
       const thisContextType: string | undefined =
         contextType && handler ? (contextType as string) : undefined;
       const listenerId: string = guid();
-      contextListeners.set(
+      connection.contextListeners.set(
         listenerId,
         createListenerItem(listenerId, thisListener, thisContextType)
       );
 
-      sendMessage(TOPICS.ADD_CONTEXT_LISTENER, {
+      connection.sendMessage(TOPICS.ADD_CONTEXT_LISTENER, {
         listenerId: listenerId,
         contextType: thisContextType,
       });
@@ -301,14 +286,14 @@ export const createAPI = (): DesktopAgent => {
     addIntentListener: (intent: string, listener: ContextHandler): Listener => {
       const listenerId: string = guid();
       intent = intent;
-      if (!intentListeners.has(intent)) {
-        intentListeners.set(intent, new Map());
+      if (!connection.intentListeners.has(intent)) {
+        connection.intentListeners.set(intent, new Map());
       }
-      const listeners = intentListeners.get(intent);
+      const listeners = connection.intentListeners.get(intent);
       if (listeners) {
         listeners.set(listenerId, createListenerItem(listenerId, listener));
 
-        sendMessage(TOPICS.ADD_INTENT_LISTENER, {
+        connection.sendMessage(TOPICS.ADD_INTENT_LISTENER, {
           listenerId: listenerId,
           intent: intent,
         });
@@ -320,7 +305,7 @@ export const createAPI = (): DesktopAgent => {
       intent: string,
       context: Context
     ): Promise<AppIntent> => {
-      const result = await sendMessage(TOPICS.FIND_INTENT, {
+      const result = await connection.sendMessage(TOPICS.FIND_INTENT, {
         intent: intent,
         context: context,
       });
@@ -333,7 +318,7 @@ export const createAPI = (): DesktopAgent => {
     findIntentsByContext: async (
       context: Context
     ): Promise<Array<AppIntent>> => {
-      const result = await sendMessage(TOPICS.FIND_INTENTS_BY_CONTEXT, {
+      const result = await connection.sendMessage(TOPICS.FIND_INTENTS_BY_CONTEXT, {
         context: context,
       });
       if (result.error) {
@@ -343,7 +328,7 @@ export const createAPI = (): DesktopAgent => {
     },
 
     getSystemChannels: async (): Promise<Array<Channel>> => {
-      const result = await sendMessage(TOPICS.GET_SYSTEM_CHANNELS, {});
+      const result = await connection.sendMessage(TOPICS.GET_SYSTEM_CHANNELS, {});
 
       if (result.error) {
         throw new Error(result.error.type);
@@ -361,7 +346,7 @@ export const createAPI = (): DesktopAgent => {
     },
 
     getOrCreateChannel: async (channelId: string) => {
-      const result = await sendMessage(TOPICS.GET_OR_CREATE_CHANNEL, {
+      const result = await connection.sendMessage(TOPICS.GET_OR_CREATE_CHANNEL, {
         channel: channelId,
       });
       if (result.error) {
@@ -376,19 +361,19 @@ export const createAPI = (): DesktopAgent => {
     },
 
     joinChannel: async (channel: string) => {
-      await sendMessage(TOPICS.JOIN_CHANNEL, {
+      await connection.sendMessage(TOPICS.JOIN_CHANNEL, {
         channel: channel,
       });
       return;
     },
 
     leaveCurrentChannel: async () => {
-      await sendMessage(TOPICS.LEAVE_CURRENT_CHANNEL, {});
+      await connection.sendMessage(TOPICS.LEAVE_CURRENT_CHANNEL, {});
       return;
     },
 
     getCurrentChannel: async () => {
-      const result = await sendMessage(TOPICS.GET_CURRENT_CHANNEL, {});
+      const result = await connection.sendMessage(TOPICS.GET_CURRENT_CHANNEL, {});
 
       if (result.error) {
         throw new Error(result.error.type);

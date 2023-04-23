@@ -1,0 +1,140 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <style>
+            body {
+                background: #fff;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            .content {
+                width:calc(50vw - 2rem);
+            }
+    
+            .header {
+                display: flex;
+                flex-flow:row;
+                justify-content: center;
+                width:100%;
+            }
+    
+            .header .title {
+                width:100%;
+                font-size:32px;
+                font-weight:bold;
+                color: #eee;
+                margin-left: 0.6rem;
+                margin-bottom:.6rem;
+            }
+
+            .content .header {
+                height:42px;
+            }
+    
+            .content p {
+                margin-left:.6rem;
+            }
+            
+            .header h1 {
+                text-align:left;
+            }
+    
+            #channelPicker {
+                display: flex;
+                flex-flow: row;
+                margin-top:.6rem;
+                margin-right: .6rem;
+            }
+    
+            .channel {
+                height: 25px;
+                width: 25px;
+                text-align: center;
+                vertical-align: middle;
+                font-size: 19px;
+                font-family: monospace;
+                padding-top:0px;
+                margin-bottom: 0px;
+                color: #eee;
+                font-family: sans-serif;
+                font-variant-caps: all-small-caps;
+                border-radius:3px;
+                margin-left:1px;
+            }
+
+            .channel:hover {
+                cursor: pointer;
+                opacity:.8;
+                transition-property: opacity;
+                transition-duration: .3s;
+            }
+    
+            #broadcastButtons {
+                width: 100%;
+    
+            }
+    
+            .buttonContainer button {
+                margin-right: 3px;
+                margin-bottom: 3px;
+                border: 0px;
+                background: #36a;
+                color: #eee;
+                padding: 0px;
+                width: 130px;
+                height:40px;
+                border-radius: 3px;
+            }
+    
+            .contextField {
+                margin-left: 0.6rem;
+                margin-right: 0.6rem;
+                height: 200px;
+                background: #222;
+                color: #3a6;
+                padding: 3px;
+                font-family: monospace;
+                border-radius: 3px;
+                overflow-y: scroll;
+                overflow-wrap: normal;
+            }
+    
+    
+            .section {
+                margin-left: .6rem;
+                margin-right: .6rem;
+            }
+    
+    
+            .section h2 {
+                margin-left:.3rem;
+            }
+        </style>
+        <script type="module" src="/src/agent.ts"></script>
+
+    </head>
+    <body>
+        <div class='header'>
+            <h1>Connectifi Web Portal</h1>
+        </div>
+          <section>
+            <div class="content">
+             
+            </div>
+      
+            <div class="content">
+
+            </div>
+
+        </section>
+    </body>
+    <script type="module">
+        import { createComponent } from  "/src/component.ts";
+
+        const targets = document.querySelectorAll('.content');
+        targets.forEach(target => {
+            createComponent(target);
+        });
+    </script>
+</html>
+

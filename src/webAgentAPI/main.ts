@@ -1,15 +1,18 @@
 import { createAPI, setListener } from "./api";
-import { sendMessage, setInstanceId } from "./sendMessage";
+import { FDC3LocalInstance } from "./sendMessage";
 import { RegisterInstanceReturn } from "@/common/types";
 import { DesktopAgent } from "@finos/fdc3";
 
 export const createWebAgentAPI = async (): Promise<DesktopAgent> => {
-  setListener();
-
-  const registrationResult = await sendMessage("registerInstance");
+  
+  //instantiate a local instance
+  const connection = new FDC3LocalInstance();
+  connection.setListener();
+  const registrationResult = await connection.sendMessage("registerInstance");
   const instanceId = (registrationResult.data as RegisterInstanceReturn)
     .instanceId;
-  setInstanceId(instanceId);
+  console.log("*** API setting instanceId ", instanceId);
+  connection.instanceId = instanceId;
 
-  return createAPI();
+  return createAPI(connection);
 };
