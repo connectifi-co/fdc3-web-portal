@@ -8,6 +8,8 @@ import {
 import { TOPICS } from "@/common/topics";
 import { guid } from "@/common/util";
 import { Context } from '@finos/fdc3';
+import { RegisterInstanceReturn } from "@/common/types";
+
 
 export class FDC3LocalInstance {
 
@@ -16,8 +18,18 @@ export class FDC3LocalInstance {
   returnHandlers: Map<string, any> = new Map();
 
   constructor() {
-  
+
   }
+
+  initConnection = async () => {
+    this.setListener();
+    const registrationResult = await this.sendMessage("registerInstance");
+    const instanceId = (registrationResult.data as RegisterInstanceReturn)
+      .instanceId;
+    console.log("*** API setting instanceId ", instanceId);
+    this.instanceId = instanceId;
+  }
+
   contextListeners: Map<string, ListenerItem> = new Map();
 
   intentListeners: Map<string, Map<string, ListenerItem>> = new Map();
