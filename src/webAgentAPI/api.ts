@@ -11,11 +11,8 @@ import {
   IntentResolution,
 } from "@finos/fdc3";
 import {
-  ListenerItem,
   ChannelTypes,
-  ChannelData,
-  FDC3ReturnMessage,
-  ContextMessage
+  ChannelData
 } from "@/common/types";
 import { TOPICS } from "@/common/topics";
 import { guid, targetToIdentifier } from "@/common/util";
