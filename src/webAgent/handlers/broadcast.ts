@@ -34,7 +34,8 @@ export const broadcast = async (localAgent: WebAgent, message: FDC3Message) => {
 
       // iterate through listeners on the instance
       instance.contextListeners.forEach((listener, listenerId) => {
-        const listenerChannel = listener.channel || instance.channel;
+        
+        const listenerChannel = listener.channel === "default" ? (instance.channel || "default") : listener.channel;
 
         // ensure channels match and the context types are appropriate
         if (
