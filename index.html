@@ -7,7 +7,7 @@
                 const popoutButtons = document.querySelectorAll('.popoutButton');
                 popoutButtons.forEach( button => {
                     button.addEventListener('click', () => {
-                        window.open('http://localhost:5173/single.html')
+                        window.open(`${window.location.href}single.html`)
                     });
                 });
             });
@@ -22,14 +22,14 @@
                 <div class="titleBar">
                         <button class="popoutButton">+</button>
                 </div>
-             <iframe class="frame" src="http://localhost:5173/app1.html"></iframe>
+             <iframe class="frame" src="/app1.html"></iframe>
             </div>
       
             <div class="content">
                     <div class="titleBar">
                             <button class="popoutButton">+</button>
                         </div>
-                <iframe class="frame" src="http://localhost:5173/app1.html"></iframe>
+                <iframe class="frame" src="/app1.html"></iframe>
             </div>
 
         </section>

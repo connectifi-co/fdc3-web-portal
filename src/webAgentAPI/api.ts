@@ -361,6 +361,8 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
       await connection.sendMessage(TOPICS.JOIN_CHANNEL, {
         channel: channel,
       });
+
+      
       return;
     },
 

@@ -46,6 +46,7 @@ html {
     border-radius:3px;
     background:#999;
     color:#eee;
+    cursor: pointer;
     border:0px;
     margin-top:3px;
     margin-right:3px;
