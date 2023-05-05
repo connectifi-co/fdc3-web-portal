@@ -208,7 +208,7 @@ export interface RaiseIntentContextData {
  context?: Context | undefined;
 }*/
 
-export type FDC3ReturnMessageData = {} | RegisterInstanceReturn | ContextMessage | AppIntent[];
+export type FDC3ReturnMessageData = {} | RegisterInstanceReturn | ContextMessage | AppIntent[] | AppIntent;
 
 export interface RegisterInstanceReturn {
   instanceId: string;
