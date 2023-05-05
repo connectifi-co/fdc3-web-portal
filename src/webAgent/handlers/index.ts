@@ -16,6 +16,7 @@ import {
   leaveCurrentChannel,
   getOrCreateChannel
 } from "./channels";
+import { findIntentsByContext, findIntent } from "./findIntents";
 
 export type FDC3Handler = (
   localAgent: WebAgent,
@@ -46,3 +47,5 @@ fdc3Handlers.set(TOPICS.GET_CURRENT_CONTEXT, getCurrentContext);
 fdc3Handlers.set(TOPICS.LEAVE_CURRENT_CHANNEL, leaveCurrentChannel);
 fdc3Handlers.set(TOPICS.RAISE_INTENT, raiseIntent);
 fdc3Handlers.set(TOPICS.RAISE_INTENT_FOR_CONTEXT, raiseIntentForContext);
+fdc3Handlers.set(TOPICS.FIND_INTENT, findIntent);
+fdc3Handlers.set(TOPICS.FIND_INTENTS_BY_CONTEXT, findIntentsByContext);

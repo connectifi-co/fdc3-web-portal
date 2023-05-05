@@ -3,6 +3,7 @@ import {
   ContextHandler,
   DisplayMetadata,
   AppMetadata,
+  AppIntent,
   Listener,
 } from "@finos/fdc3";
 
@@ -207,7 +208,7 @@ export interface RaiseIntentContextData {
  context?: Context | undefined;
 }*/
 
-export type FDC3ReturnMessageData = {} | RegisterInstanceReturn | ContextMessage;
+export type FDC3ReturnMessageData = {} | RegisterInstanceReturn | ContextMessage | AppIntent[];
 
 export interface RegisterInstanceReturn {
   instanceId: string;
