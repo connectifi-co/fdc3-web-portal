@@ -3,32 +3,56 @@ import {
   FDC3ReturnMessage,
   FDC3SendMessageResolution,
   ListenerItem,
-  ContextMessage
+  ContextMessage,
 } from "@/common/types";
 import { TOPICS } from "@/common/topics";
 import { guid } from "@/common/util";
-import { Context } from '@finos/fdc3';
+import { Context } from "@finos/fdc3";
 import { RegisterInstanceReturn } from "@/common/types";
 
-
 export class FDC3LocalInstance {
-
-  instanceId : string | undefined;
+  instanceId: string | undefined;
 
   returnHandlers: Map<string, any> = new Map();
 
-  constructor() {
+  constructor() {}
 
-  }
+  getInstanceId =  (): Promise<string> => {
+    return new Promise((resolve) => {
+      let timer : any;
+      const getResult = async () => {
+          timer = setTimeout(getResult, 300);
+          const registrationResult = await this.sendMessage("registerInstance");
+          if (
+            registrationResult &&
+            (registrationResult.data as RegisterInstanceReturn).instanceId
+          ) {
+            clearTimeout(timer);
+            resolve((registrationResult.data as RegisterInstanceReturn).instanceId);
+              
+          }
+      };
+      
+      timer = setTimeout(getResult, 300);
+      this.sendMessage("registerInstance").then((registrationResult) => {
+        if (
+          registrationResult &&
+          (registrationResult.data as RegisterInstanceReturn).instanceId
+        ) {
+          clearTimeout(timer);
+          resolve((registrationResult.data as RegisterInstanceReturn).instanceId);
+            
+        }
+      });
 
-  initConnection = async () => {
+    });
+  };
+
+  initConnection = async (): Promise<void> => {
     this.setListener();
-    const registrationResult = await this.sendMessage("registerInstance");
-    const instanceId = (registrationResult.data as RegisterInstanceReturn)
-      .instanceId;
-    console.log("*** API setting instanceId ", instanceId);
-    this.instanceId = instanceId;
-  }
+    this.instanceId = await this.getInstanceId();
+    return;
+  };
 
   contextListeners: Map<string, ListenerItem> = new Map();
 
@@ -36,24 +60,30 @@ export class FDC3LocalInstance {
 
   setListener = () => {
     window.addEventListener("message", async (event: MessageEvent) => {
-      const message: FDC3ReturnMessage = event.data || ({} as FDC3ReturnMessage);
+      const message: FDC3ReturnMessage =
+        event.data || ({} as FDC3ReturnMessage);
       if (message.topic === TOPICS.CONTEXT && message.data) {
-        const contextMessage : ContextMessage = message.data as ContextMessage;
-    
-        if (this.contextListeners.has(contextMessage.listenerId)){
+        const contextMessage: ContextMessage = message.data as ContextMessage;
+
+        if (this.contextListeners.has(contextMessage.listenerId)) {
           const listener = this.contextListeners.get(contextMessage.listenerId);
-          listener?.handler?.call(this, (message.data as ContextMessage).context as Context);
+          listener?.handler?.call(
+            this,
+            (message.data as ContextMessage).context as Context
+          );
         }
       }
-  
+
       const returnHandlers = this.getReturnHandlers();
       if (returnHandlers.has(message.topic)) {
-        return returnHandlers.get(message.topic).call(this, { data: message.data });
+        return returnHandlers
+          .get(message.topic)
+          .call(this, { data: message.data });
       }
     });
-  }
+  };
 
-  getReturnHandlers() : Map<string, any>  {
+  getReturnHandlers(): Map<string, any> {
     return this.returnHandlers;
   }
 
@@ -61,7 +91,7 @@ export class FDC3LocalInstance {
     topic: string,
     data?: FDC3MessageData,
     handler?: any
-  ): Promise<FDC3SendMessageResolution>  {
+  ): Promise<FDC3SendMessageResolution> {
     return new Promise((resolve) => {
       const returnId = `${topic}_${guid()}`;
       const theHandler = async (message: FDC3ReturnMessage) => {
@@ -73,7 +103,6 @@ export class FDC3LocalInstance {
       this.returnHandlers.set(returnId, theHandler);
       const source = this.instanceId;
       //do everything through window messages?
-      console.log('***API posting message', topic, source, data);
       window.top?.postMessage({
         topic,
         source,
@@ -82,7 +111,4 @@ export class FDC3LocalInstance {
       });
     });
   }
-
 }
-
-
