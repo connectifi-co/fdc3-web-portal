@@ -75,12 +75,10 @@ export class WebAgent {
     this.channels = new Map();
     this.handlers = fdc3Handlers;
     this.localInstances = new Map();
-
     // set up message listener
     window.addEventListener("message", async (event: MessageEvent) => {
       const message: FDC3Message = event.data || ({} as FDC3Message);
       const messageSource = event.source;
-
       if (message.topic === "registerInstance") {
         // handle registration
         this.handleRegistration(message, messageSource);

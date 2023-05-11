@@ -18,16 +18,7 @@ import { TOPICS } from "@/common/topics";
 import { guid, targetToIdentifier } from "@/common/util";
 import { FDC3LocalInstance } from "./sendMessage";
 
-
-
-
-
 export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
-
-  
-
-
-
   /**
    *  the Listener class
    */
