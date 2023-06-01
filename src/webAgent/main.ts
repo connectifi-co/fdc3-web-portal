@@ -7,6 +7,7 @@ import {
 } from "@/common/types";
 import { DesktopAgent } from "@finos/fdc3";
 import { FDC3Handler, fdc3Handlers } from "./handlers";
+import { ConnectifiDesktopAgent } from '@connectifi/agent-web';
 
 /**
  * WebAgent is a standard implementation of FDC3 that will provide an FDC3 api interface as either
@@ -69,7 +70,7 @@ export class WebAgent {
   // collection of 'app' instances or app bounderies local to the page
   localInstances: Map<string, LocalInstance>;
   // underlying desktop agent
-  fdc3: DesktopAgent | undefined;
+  fdc3: DesktopAgent | ConnectifiDesktopAgent |  undefined;
 
   constructor() {
     this.channels = new Map();
@@ -90,7 +91,7 @@ export class WebAgent {
   }
 
   // bind to an FDC3 implementation
-  bind(fdc3: DesktopAgent) {
+  bind(fdc3: DesktopAgent | ConnectifiDesktopAgent) {
     this.fdc3 = fdc3;
   }
 
