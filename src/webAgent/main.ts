@@ -63,6 +63,8 @@ import { ConnectifiDesktopAgent } from '@connectifi/agent-web';
 export class WebAgent {
   // controls ability to broadcast on the "default" channel
   allowBroadcastOnDefault: boolean = false;
+  //automatically sync channels on connects and reconnects
+  autosync: boolean = true;
   // collection of channels for local state
   channels: Map<string, ChannelInstance>;
   // handlers for fdc3 messages

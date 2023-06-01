@@ -55,14 +55,16 @@ export const addContextListener = async (
 
     //if using Connectifi, add a onConnect listener to handle reconnects
     const agent : ConnectifiDesktopAgent = localAgent.fdc3 as ConnectifiDesktopAgent;
-    if (agent?.addEventListener) {
+    if (localAgent.autosync && agent?.addEventListener) {
       agent.addEventListener(ConnectifiEventTypes.CONNECT,() => {
           loadCurrentContext();
       });
     }
 
     //send the current context immediately as well
-    loadCurrentContext();
+    if (localAgent.autosync){ 
+      loadCurrentContext();
+    }
   }
 
   //register with external FDC3
