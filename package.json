@@ -29,8 +29,8 @@
     "format": "npm run format:scripts && npm run format:styles"
   },
   "dependencies": {
-    "@finos/fdc3": "^1.2.0",
-    "@connectifi/agent-web":"^1.2.12"
+    "@connectifi/agent-web": "1.3.0",
+    "@finos/fdc3": "^1.2.0"
   },
   "devDependencies": {
     "@types/jest": "^29.0.0",
