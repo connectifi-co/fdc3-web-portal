@@ -1,7 +1,8 @@
 import { WebAgent } from "@/webAgent/main";
 import { FDC3Message, ContextListenerData } from "@/common/types";
 import { TOPICS } from "@/common/topics";
-import { Context } from "@finos/fdc3";
+import { Context, Channel } from "@finos/fdc3";
+import { ConnectifiDesktopAgent, ConnectifiEventTypes } from "@connectifi/agent-web";
 
 
 export const addContextListener = async (
@@ -11,6 +12,28 @@ export const addContextListener = async (
   //get the instance
   const instance = localAgent.localInstances.get(message.source);
   const messageData = message.data as ContextListenerData;
+  const loadCurrentContext = async () => {
+    let channel : Channel | null | undefined;
+    if (messageData.channel){
+      channel = await localAgent.fdc3?.getOrCreateChannel(messageData.channel);
+    }
+    else {
+      channel = await localAgent.fdc3?.getCurrentChannel();
+    }
+    if (channel){
+      const context = await channel?.getCurrentContext(messageData.contextType || "*");
+      if (instance && context){
+        instance.source?.postMessage({
+          topic: TOPICS.CONTEXT,
+          data: {
+            context: context,
+            channel: messageData.channel,
+            listenerId: messageData.listenerId,
+          },
+        });
+      }
+    }
+  };
 
   //register the listener
   if (instance) {
@@ -29,6 +52,19 @@ export const addContextListener = async (
         });
       },
     });
+
+    //if using Connectifi, add a onConnect listener to handle reconnects
+    const agent : ConnectifiDesktopAgent = localAgent.fdc3 as ConnectifiDesktopAgent;
+    if (localAgent.autosync && agent?.addEventListener) {
+      agent.addEventListener(ConnectifiEventTypes.CONNECT,() => {
+          loadCurrentContext();
+      });
+    }
+
+    //send the current context immediately as well
+    if (localAgent.autosync){ 
+      loadCurrentContext();
+    }
   }
 
   //register with external FDC3
