@@ -42,8 +42,8 @@ In this example, the FDC3Provider is the *WebAgent* which implements a local bus
 
 The project currently has the following parts:
 
-- `index.html` & `app1.html` - test harness UIs
-- `src/agent.ts` - this is the harness app code, instantiates the *WebAgent* and connects to the *Connectifi* service
+- `demo/index.html` & `demo/app1.html` - test harness UIs
+- `demo/agent.ts` - this is the harness app code, instantiates the *WebAgent* and connects to the *Connectifi* service
 - `src/common` - contains the types and topics used in the postMessage *wire protocol* between the api and web agent
 - `src/webAgent` - the WebAgent implementation (top level page)
 - `src/webAgentAPI` - the FDC3 API implementation (sub apps/components)

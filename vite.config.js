@@ -17,10 +17,11 @@ export default defineConfig(({ command }) => {
         },
       },
       server: {
-          port: port,
+        port: port,
+        open: '/demo/index.html',
           proxy: {
-              '/api': apiHost,
-          }
+          '/api': apiHost,
+        }
       }
     };
   } else {

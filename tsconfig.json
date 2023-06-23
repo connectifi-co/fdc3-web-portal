@@ -18,9 +18,9 @@
     "types": ["vite/client", "node", "jest"],
     "baseUrl": ".",
     "paths": {
-      "@/*" : ["src/*"]
+      "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "demo/agent.ts", "demo/component.ts"],
   "exclude": ["**/*.test.ts", "node_modules", "test/**", ".history/**"]
 }
