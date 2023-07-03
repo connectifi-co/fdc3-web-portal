@@ -9,13 +9,12 @@ import {
   Channel,
   ImplementationMetadata,
   IntentResolution,
+  AppIdentifier,
+  PrivateChannel,
 } from "@finos/fdc3";
-import {
-  ChannelTypes,
-  ChannelData
-} from "@/common/types";
+import { ChannelTypes, ChannelData } from "@/common/types";
 import { TOPICS } from "@/common/topics";
-import { guid, targetToIdentifier } from "@/common/util";
+import { guid } from "@/common/util";
 import { FDC3LocalInstance } from "./sendMessage";
 
 export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
@@ -97,10 +96,13 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
         return;
       },
       getCurrentContext: async (contextType?: string) => {
-        const result = await connection.sendMessage(TOPICS.GET_CURRENT_CONTEXT, {
-          channel: channel.id,
-          contextType: contextType,
-        });
+        const result = await connection.sendMessage(
+          TOPICS.GET_CURRENT_CONTEXT,
+          {
+            channel: channel.id,
+            contextType: contextType,
+          }
+        );
 
         if (result.error) {
           throw new Error(result.error.type);
@@ -109,10 +111,10 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
         return result.data as Context;
       },
 
-      addContextListener: (
+      addContextListener: async (
         contextType: ContextHandler | string | null,
         handler?: ContextHandler
-      ) => {
+      ): Promise<Listener> => {
         const thisListener: ContextHandler = handler
           ? handler
           : (contextType as ContextHandler);
@@ -121,7 +123,12 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
 
         connection.contextListeners.set(
           listenerId,
-          createListenerItem(listenerId, thisListener, thisContextType, channel.id)
+          createListenerItem(
+            listenerId,
+            thisListener,
+            thisContextType,
+            channel.id
+          )
         );
 
         connection.sendMessage(TOPICS.ADD_CONTEXT_LISTENER, {
@@ -137,12 +144,11 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
   };
 
   async function openFunc(
-    app: string | AppMetadata,
+    app: string | AppIdentifier,
     context?: Context | undefined
-  ): Promise<void> {
-    const target = targetToIdentifier(app);
+  ): Promise<AppIdentifier> {
     const result = await connection.sendMessage(TOPICS.OPEN, {
-      target: target,
+      target: app,
       context: context,
     });
 
@@ -150,30 +156,27 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
       throw new Error(result.error.type);
     }
 
-    return;
+    return result.data as AppIdentifier;
   }
 
   function raiseIntent(
     intent: string,
     context: Context,
-    app?: AppMetadata
+    app?: AppIdentifier
   ): Promise<IntentResolution>;
   function raiseIntent(
     intent: string,
-    context: Context,
-    app?: String
+    context: Context
   ): Promise<IntentResolution>;
   async function raiseIntent(
     intent: string,
     context: Context,
-    app?: AppMetadata | String
+    app?: AppIdentifier | undefined
   ): Promise<IntentResolution> {
-    const target = targetToIdentifier(app);
-
     const result = await connection.sendMessage(TOPICS.RAISE_INTENT, {
       intent: intent,
       context: context,
-      target: target,
+      target: app,
     });
 
     if (result.error) {
@@ -184,7 +187,7 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
 
   function raiseIntentForContext(
     context: Context,
-    app?: AppMetadata
+    app?: AppIdentifier
   ): Promise<IntentResolution>;
   function raiseIntentForContext(
     context: Context,
@@ -192,14 +195,15 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
   ): Promise<IntentResolution>;
   async function raiseIntentForContext(
     context: Context,
-    app?: AppMetadata | String
+    app?: AppIdentifier | String
   ): Promise<IntentResolution> {
-    const target = targetToIdentifier(app);
-
-    const result = await connection.sendMessage(TOPICS.RAISE_INTENT_FOR_CONTEXT, {
-      context: context,
-      target: target,
-    });
+    const result = await connection.sendMessage(
+      TOPICS.RAISE_INTENT_FOR_CONTEXT,
+      {
+        context: context,
+        target: app,
+      }
+    );
     if (result.error) {
       throw new Error(result.error.type);
     }
@@ -207,37 +211,15 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
   }
 
   const desktopAgent: DesktopAgent = {
-    getInfo: (): ImplementationMetadata => {
-      connection.sendMessage(TOPICS.GET_INFO, {}).then((result) => {
-        if (result.error) {
-          throw new Error(result.error.type);
-        }
-        return result.data as ImplementationMetadata;
-      });
-
-      return {
-        fdc3Version: "1.2",
-        provider: "FDC3Stub",
-      };
+    getInfo: async (): Promise<ImplementationMetadata> => {
+      const result = await connection.sendMessage(TOPICS.GET_INFO, {});
+      if (result.error) {
+        throw new Error(result.error.type);
+      }
+      return result.data as ImplementationMetadata;
     },
 
     open: openFunc,
-
-    /*async (app: AppIdentifier, context?: Context) : Promise<AppIdentifier> => {
-      const result = await connection.sendMessage(
-        TOPICS.OPEN,
-        {
-          app: app,
-          context: context,
-        }
-      );
-
-      if (result.error) {
-          throw new Error(result.error.type);
-      }
-
-      return result.data as AppIdentifier;
-    },*/
 
     broadcast: async (context: Context) => {
       await connection.sendMessage(TOPICS.BROADCAST, { context: context });
@@ -248,10 +230,10 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
 
     raiseIntentForContext: raiseIntentForContext,
 
-    addContextListener: (
+    addContextListener: async (
       contextType: ContextHandler | string | null,
       handler?: ContextHandler
-    ): Listener => {
+    ): Promise<Listener> => {
       const thisListener: ContextHandler = handler
         ? handler
         : (contextType as ContextHandler);
@@ -271,7 +253,10 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
       return new FDC3Listener("context", listenerId);
     },
 
-    addIntentListener: (intent: string, listener: ContextHandler): Listener => {
+    addIntentListener: async (
+      intent: string,
+      listener: ContextHandler
+    ): Promise<Listener> => {
       const listenerId: string = guid();
       intent = intent;
       if (!connection.intentListeners.has(intent)) {
@@ -306,17 +291,75 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
     findIntentsByContext: async (
       context: Context
     ): Promise<Array<AppIntent>> => {
-      const result = await connection.sendMessage(TOPICS.FIND_INTENTS_BY_CONTEXT, {
-        context: context,
-      });
+      const result = await connection.sendMessage(
+        TOPICS.FIND_INTENTS_BY_CONTEXT,
+        {
+          context: context,
+        }
+      );
       if (result.error) {
         throw new Error(result.error.type);
       }
       return result.data as Array<AppIntent>;
     },
 
+    findInstances: async (app: AppIdentifier): Promise<AppIdentifier[]> => {
+      const result = await connection.sendMessage(TOPICS.FIND_INSTANCES, {
+        app: app,
+      });
+      if (result.error) {
+        throw new Error(result.error.type);
+      }
+      return result.data as AppIdentifier[];
+    },
+
+    getAppMetadata: async (app: AppIdentifier): Promise<AppMetadata> => {
+      const result = await connection.sendMessage(TOPICS.GET_APP_METADATA, {
+        app: app,
+      });
+      if (result.error) {
+        throw new Error(result.error.type);
+      }
+      return result.data as AppMetadata;
+    },
+
+    createPrivateChannel: async (): Promise<PrivateChannel> => {
+      const result = await connection.sendMessage(
+        TOPICS.CREATE_PRIVATE_CHANNEL,
+        {}
+      );
+      if (result.error) {
+        throw new Error(result.error.type);
+      }
+      return result.data as PrivateChannel;
+    },
+
+    getUserChannels: async (): Promise<Array<Channel>> => {
+      const result = await connection.sendMessage(
+        TOPICS.GET_SYSTEM_CHANNELS,
+        {}
+      );
+
+      if (result.error) {
+        throw new Error(result.error.type);
+      }
+      const channels = (result.data as Array<ChannelData>).map(
+        (c: ChannelData) => {
+          return createChannelObject(
+            c.id,
+            "user",
+            c.displayMetadata || { name: c.id }
+          );
+        }
+      );
+      return channels;
+    },
+
     getSystemChannels: async (): Promise<Array<Channel>> => {
-      const result = await connection.sendMessage(TOPICS.GET_SYSTEM_CHANNELS, {});
+      const result = await connection.sendMessage(
+        TOPICS.GET_SYSTEM_CHANNELS,
+        {}
+      );
 
       if (result.error) {
         throw new Error(result.error.type);
@@ -334,9 +377,12 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
     },
 
     getOrCreateChannel: async (channelId: string) => {
-      const result = await connection.sendMessage(TOPICS.GET_OR_CREATE_CHANNEL, {
-        channel: channelId,
-      });
+      const result = await connection.sendMessage(
+        TOPICS.GET_OR_CREATE_CHANNEL,
+        {
+          channel: channelId,
+        }
+      );
       if (result.error) {
         throw new Error(result.error.type);
       }
@@ -353,7 +399,14 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
         channel: channel,
       });
 
-      
+      return;
+    },
+
+    joinUserChannel: async (channel: string) => {
+      await connection.sendMessage(TOPICS.JOIN_CHANNEL, {
+        channel: channel,
+      });
+
       return;
     },
 
@@ -363,7 +416,10 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
     },
 
     getCurrentChannel: async () => {
-      const result = await connection.sendMessage(TOPICS.GET_CURRENT_CHANNEL, {});
+      const result = await connection.sendMessage(
+        TOPICS.GET_CURRENT_CHANNEL,
+        {}
+      );
 
       if (result.error) {
         throw new Error(result.error.type);
