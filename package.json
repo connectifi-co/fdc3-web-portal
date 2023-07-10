@@ -1,7 +1,7 @@
 {
   "name": "@connectifi/fdc3-web-portal",
   "private": false,
-  "version": "0.1.6",
+  "version": "0.1.7",
   "type": "module",
   "main": "./dist/main.umd.cjs",
   "module": "./dist/main.js",
@@ -29,7 +29,7 @@
     "format": "npm run format:scripts && npm run format:styles"
   },
   "dependencies": {
-    "@connectifi/agent-web": "1.3.0",
+    "@connectifi/agent-web": "1.3.2",
     "@finos/fdc3": "^1.2.0"
   },
   "devDependencies": {
