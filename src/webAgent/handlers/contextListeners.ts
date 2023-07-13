@@ -14,14 +14,29 @@ export const addContextListener = async (
   const messageData = message.data as ContextListenerData;
   const loadCurrentContext = async () => {
     let channel : Channel | null | undefined;
-    if (messageData.channel){
-      channel = await localAgent.fdc3?.getOrCreateChannel(messageData.channel);
-    }
-    else {
-      channel = await localAgent.fdc3?.getCurrentChannel();
+    let context : Context | null | undefined;
+    try {
+      if (messageData.channel){
+        channel = await localAgent.fdc3?.getOrCreateChannel(messageData.channel);
+      }
+      else {
+        channel = await localAgent.fdc3?.getCurrentChannel();
+      }
+    } catch (err: any) {
+      return {
+        data: {},
+        error: { type: err },
+      };
     }
     if (channel){
-      const context = await channel?.getCurrentContext(messageData.contextType || "*");
+      try {
+        context = await channel?.getCurrentContext(messageData.contextType || "*");
+      } catch (err: any) {
+        return {
+          data: {},
+          error: { type: err },
+        };
+      }
       if (instance && context){
         instance.source?.postMessage({
           topic: TOPICS.CONTEXT,
@@ -31,8 +46,9 @@ export const addContextListener = async (
             listenerId: messageData.listenerId,
           },
         });
-      }
+      } 
     }
+    return;
   };
 
   //register the listener

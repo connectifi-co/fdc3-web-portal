@@ -178,7 +178,6 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
       context: context,
       target: app,
     });
-
     if (result.error) {
       throw new Error(result.error.type);
     }
@@ -222,7 +221,12 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
     open: openFunc,
 
     broadcast: async (context: Context) => {
-      await connection.sendMessage(TOPICS.BROADCAST, { context: context });
+      const result = await connection.sendMessage(TOPICS.BROADCAST, {
+        context: context,
+      });
+      if (result.error) {
+        throw new Error(result.error.type);
+      }
       return;
     },
 
@@ -244,11 +248,14 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
         listenerId,
         createListenerItem(listenerId, thisListener, thisContextType)
       );
-
-      connection.sendMessage(TOPICS.ADD_CONTEXT_LISTENER, {
+      const result = await connection.sendMessage(TOPICS.ADD_CONTEXT_LISTENER, {
         listenerId: listenerId,
         contextType: thisContextType,
       });
+
+      if (result?.error) {
+        throw new Error(result.error.type);
+      }
 
       return new FDC3Listener("context", listenerId);
     },
@@ -266,10 +273,13 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
       if (listeners) {
         listeners.set(listenerId, createListenerItem(listenerId, listener));
 
-        connection.sendMessage(TOPICS.ADD_INTENT_LISTENER, {
+        const result = await connection.sendMessage(TOPICS.ADD_INTENT_LISTENER, {
           listenerId: listenerId,
           intent: intent,
         });
+        if (result?.error) {
+          throw new Error(result.error.type);
+        }
       }
       return new FDC3Listener("intent", listenerId, intent);
     },
@@ -420,8 +430,7 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
         TOPICS.GET_CURRENT_CHANNEL,
         {}
       );
-
-      if (result.error) {
+      if (result && result.error) {
         throw new Error(result.error.type);
       }
 

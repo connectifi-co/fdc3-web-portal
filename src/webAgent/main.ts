@@ -7,7 +7,7 @@ import {
 } from "@/common/types";
 import { DesktopAgent } from "@finos/fdc3";
 import { FDC3Handler, fdc3Handlers } from "./handlers";
-import { ConnectifiDesktopAgent } from '@connectifi/agent-web/src/types';
+import { ConnectifiDesktopAgent } from '@connectifi/agent-web';
 
 /**
  * WebAgent is a standard implementation of FDC3 that will provide an FDC3 api interface as either

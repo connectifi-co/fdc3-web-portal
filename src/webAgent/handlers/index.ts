@@ -14,7 +14,7 @@ import {
   getCurrentChannel,
   getCurrentContext,
   leaveCurrentChannel,
-  getOrCreateChannel
+  getOrCreateChannel,
 } from "./channels";
 import { findIntentsByContext, findIntent } from "./findIntents";
 
