@@ -81,7 +81,7 @@ export class WebAgent {
     // set up message listener
     window.addEventListener("message", async (event: MessageEvent) => {
       const message: FDC3Message = event.data || ({} as FDC3Message);
-      const messageSource = event.source;
+      const messageSource = event.source as Window;
       if (message.topic === "registerInstance") {
         // handle registration
         this.handleRegistration(message, messageSource);
@@ -105,7 +105,7 @@ export class WebAgent {
   // handle web agent api registration
   handleRegistration(
     message: FDC3Message,
-    messageSource: MessageEventSource | null
+    messageSource: Window | null
   ) {
     // generate a guid
     const instanceId = guid();
@@ -129,7 +129,7 @@ export class WebAgent {
   // send back the instanceId to the api
   sendHandshake(
     message: FDC3Message,
-    messageSource: MessageEventSource | null,
+    messageSource: Window | null,
     instanceId: string
   ) {
     messageSource?.postMessage({
@@ -137,12 +137,12 @@ export class WebAgent {
       data: {
         instanceId: instanceId,
       },
-    });
+    }, "*");
   }
 
   async handleMessage(
     message: FDC3Message,
-    messageSource: MessageEventSource | null
+    messageSource: Window | null
   ) {
     const handler = this.handlers.get(message.topic);
     if (handler) {
@@ -152,7 +152,7 @@ export class WebAgent {
         ...result,
       };
       //send a return message
-      messageSource?.postMessage(returnMessage);
+      messageSource?.postMessage(returnMessage, "*");
     }
   }
 }

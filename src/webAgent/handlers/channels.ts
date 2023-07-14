@@ -150,7 +150,7 @@ export const joinChannel = async (
             context: context,
             listenerId: listenerId,
           },
-        });
+        }, "*");
       }
     });
   };
@@ -178,7 +178,7 @@ export const joinChannel = async (
             context: current,
             listenerId: listenerId,
           },
-        });
+        }, "*");
       }
     });
   }
