@@ -51,7 +51,7 @@ export const broadcast = async (localAgent: WebAgent, message: FDC3Message) => {
               channel: messageData.channel,
               listenerId: listenerId,
             },
-          });
+          }, "*");
         }
       });
     }

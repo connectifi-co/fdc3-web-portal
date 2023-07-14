@@ -108,7 +108,7 @@ export class FDC3LocalInstance {
         source,
         returnId,
         data,
-      });
+      }, "*");
     });
   }
 }
