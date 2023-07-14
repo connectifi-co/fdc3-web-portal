@@ -3,9 +3,9 @@ import {
   ResolveCallback,
   IntentResolutionMessage,
   ResolutionType,
-  AppIntentResult,
+  AppIntentResult
 } from "@connectifi/agent-web";
-import { WebAgent } from "./main";
+import { WebAgent } from "@/main";
 
 let fdc3;
 const localAgent: WebAgent = new WebAgent();
@@ -13,7 +13,7 @@ const localAgent: WebAgent = new WebAgent();
 document.addEventListener("DOMContentLoaded", async () => {
   fdc3 = await createAgent("https://dev.connectifi-interop.com", "*@Demo", {
     props: {
-      position: "tr",
+      position: "tr"
     },
     resolverHandler: (
       message: IntentResolutionMessage,
@@ -35,10 +35,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       menus.push(intentMenu);
 
       //iterate through the results
-      let results:AppIntentResult[] = [];
-      if ( message.resolutionType === ResolutionType.Intent ) {
+      let results: AppIntentResult[] = [];
+      if (message.resolutionType === ResolutionType.Intent) {
         results = [message.data as AppIntentResult];
-      } else if ( message.resolutionType === ResolutionType.Context ) {
+      } else if (message.resolutionType === ResolutionType.Context) {
         results = message.data as AppIntentResult[];
       }
       results.forEach((result: any) => {
@@ -53,19 +53,14 @@ document.addEventListener("DOMContentLoaded", async () => {
           appItem.textContent =
             app.details.directoryData.title || app.details.directoryData.name;
           appItem.addEventListener("click", async () => {
-            resolveCallback.call(
-              this,
-              app,
-              result.intent.name,
-              context
-            );
+            resolveCallback.call(this, app, result.intent.name, context);
           });
           intentItemMenu.appendChild(appItem);
         });
         menus.push(intentItemMenu);
       });
 
-      menus.forEach((menu) => {
+      menus.forEach(menu => {
         document.body.appendChild(menu);
       });
     },
@@ -74,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     },
     onLoadingStopped: () => {
       //stop the loading UI here
-    },
+    }
   });
 
   if (fdc3) {
