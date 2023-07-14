@@ -73,7 +73,7 @@ export const broadcast = async (
               channel: messageData.channel,
               listenerId: listenerId,
             },
-          });
+          }, "*");
         }
       });
     }

@@ -45,8 +45,8 @@ export const addContextListener = async (
             channel: messageData.channel,
             listenerId: messageData.listenerId,
           },
-        });
-      } 
+        }, "*");
+      }
     }
     return;
   };
@@ -65,7 +65,7 @@ export const addContextListener = async (
             channel: messageData.channel,
             listenerId: messageData.listenerId,
           },
-        });
+        }, "*");
       },
     });
 
