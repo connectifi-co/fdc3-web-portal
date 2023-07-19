@@ -103,7 +103,10 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
             contextType: contextType,
           }
         );
-
+        console.log("getCurrentContext Result", result);
+        if (result === null){
+          return result;
+        }
         if (result.error) {
           throw new Error(result.error.type);
         }
@@ -436,13 +439,13 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
 
       const channel = result.data as ChannelData;
 
-      return channel == null
-        ? null
-        : createChannelObject(
+      return channel ?
+        createChannelObject(
             channel.id,
             channel.type,
             channel.displayMetadata || { name: channel.id }
-          );
+          )
+          : null;
     },
   };
 

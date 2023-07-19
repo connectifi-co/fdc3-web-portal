@@ -82,6 +82,8 @@ export const getCurrentContext = async (
     if (channel) {
       try {
         context = await channel.getCurrentContext(contextType);
+        console.log("here!!!", context);
+        console.log("get Current Context from Connection", context);
       } catch (err: any) {
         return {
           data: {},
