@@ -6,13 +6,14 @@ This is a pattern for enabling apps to use a single library for FDC3 regardless 
 
 Applications/components import and create their FDC3 apis via the *createWebAgentAPI* call .  This returns an FDC3 API which uses `postMessage` to communicate with the *WebAgent* which ultimately binds to the real FDC3 implementation.  In this example, the *WebAgent* is binding to the *Connectifi* agent for interop outside of the web page.
 
-![API/Provider Pattern](provider-pattern.png)
+![API/Provider Pattern](provider-pattern.jpeg)
 
 **Notes** 
 
 - The API/WebAgent combo should work for apps implemented in iFrames or components existing in the same DOM using module scope.  The included test harness page uses iframes.
-- the `createWebAgentAPI` function allows apps and/or components to acquire an FDC3 api
+- the `createWebAgentAPI` function provides apps and/or components with a [FDC3 2.0 API](https://fdc3.finos.org/docs/api/ref/DesktopAgent)
 - the `WebAgent` allows the top level page to bind to the real FDC3 implementation and communicate with all the WebAgentAPIs in the page
+
 
 ## WebAgent Pattern
 In this example, the FDC3Provider is the *WebAgent* which implements a local bus for FDC3 interop within the page while connecting to a wider FDC3 implementation enabling FDC3 interop outside of the page.  The *WebAgent* setup looks like this:
@@ -52,7 +53,6 @@ The project currently has the following parts:
 
 (in no certain order)
 
-- integrate intents with the WebAgent (currently just deferring to the FDC3Provider)
-- add 2.0 support
+- add 2.0 intent data support
 - add module / non-iframe example
-- test against desktop agents
+- test against desktop containers
