@@ -98,7 +98,7 @@ export class FDC3LocalInstance {
         if (handler) {
           resolve(await handler.call(this, data));
         }
-        resolve({ data: message.data || {}, error: message.error });
+        resolve({ data: message.data || null, error: message.error });
       };
       this.returnHandlers.set(returnId, theHandler);
       const source = this.instanceId;

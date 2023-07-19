@@ -217,6 +217,7 @@ export interface ContextMessage {
 
 export type FDC3ReturnMessageData =
   | {}
+  | null
   | RegisterInstanceReturn
   | ContextMessage
   | AppIntent[]
