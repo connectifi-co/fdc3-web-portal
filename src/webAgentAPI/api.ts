@@ -123,7 +123,6 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
           : (contextType as ContextHandler);
         const thisContextType = handler ? (contextType as string) : undefined;
         const listenerId: string = guid();
-
         connection.contextListeners.set(
           listenerId,
           createListenerItem(
@@ -133,12 +132,15 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
             channel.id
           )
         );
-
-        connection.sendMessage(TOPICS.ADD_CONTEXT_LISTENER, {
+        const result = await connection.sendMessage(TOPICS.ADD_CONTEXT_LISTENER, {
           listenerId: listenerId,
           channel: channel.id,
           contextType: thisContextType,
         });
+        if (result?.error) {
+          throw new Error(result.error.type);
+        }
+  
         return new FDC3Listener(TOPICS.CONTEXT, listenerId);
       },
     };
