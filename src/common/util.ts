@@ -1,5 +1,3 @@
-import { AppMetadata } from "@finos/fdc3";
-
 export const guid = (): string => {
   const gen = (n?: number): string => {
     const rando = (): string => {
@@ -20,13 +18,4 @@ export const guid = (): string => {
   return `${gen(2)}-${gen()}-${gen()}-${gen()}-${gen(3)}`;
 };
 
-//convert a string target to an AppIdentifier
-export const targetToIdentifier = (
-  target: String | AppMetadata | undefined
-): AppMetadata | undefined => {
-  //is target just a string?  if so - treat it as name
-  if (typeof target === "string") {
-    return { name: target };
-  }
-  return target as AppMetadata;
-};
+

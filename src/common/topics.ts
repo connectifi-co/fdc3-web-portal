@@ -20,4 +20,7 @@ export const TOPICS = {
   RAISE_INTENT_FOR_CONTEXT: "raiseIntentForContext",
   RESOLVE_INTENT: "resolveIntent",
   GET_INFO: "getInfo",
+  FIND_INSTANCES: "findInstances",
+  GET_APP_METADATA: "getAppMetadata",
+  CREATE_PRIVATE_CHANNEL: "createPrivateChannel",
 };

@@ -3,40 +3,51 @@ import {
   FDC3Message,
   CurrentContextData,
   ChannelMessageData,
+  FDC3SendMessageResolution,
 } from "@/common/types";
-import { Context } from "@finos/fdc3";
+import { Context, Channel, Listener } from "@finos/fdc3";
 import { noProviderResult } from "./index";
 import { TOPICS } from "@/common/topics";
 
 // get the channels from the fdc3 connection
-export const getSystemChannels = async (localAgent: WebAgent) => {
+export const getSystemChannels = async (
+  localAgent: WebAgent
+): Promise<void | FDC3SendMessageResolution> => {
   if (!localAgent.fdc3) {
     return noProviderResult;
   }
-  const channels = await localAgent.fdc3.getSystemChannels();
+  const channels = await localAgent.fdc3.getUserChannels();
   return { data: channels };
 };
 
 export const getCurrentChannel = async (
   localAgent: WebAgent,
   message: FDC3Message
-) => {
+): Promise<void | FDC3SendMessageResolution> => {
   if (!localAgent.fdc3) {
     return noProviderResult;
   }
 
   const instance = localAgent.localInstances.get(message.source);
   const channelId = instance?.channel;
+  let channel: Channel | undefined;
   if (!channelId || channelId === "default") {
     return;
   } else {
-    const channel = await localAgent.fdc3.getOrCreateChannel(channelId);
+    try {
+      channel = await localAgent.fdc3.getOrCreateChannel(channelId);
+    } catch (err: any) {
+      return {
+        data: {},
+        error: { type: err },
+      };
+    }
     //serialize back the channel
     return {
       data: {
-        id: channel.id,
-        type: channel.type,
-        displayMetadata: channel.displayMetadata,
+        id: channel?.id,
+        type: channel?.type,
+        displayMetadata: channel?.displayMetadata,
       },
     };
   }
@@ -45,7 +56,7 @@ export const getCurrentChannel = async (
 export const getCurrentContext = async (
   localAgent: WebAgent,
   message: FDC3Message
-) => {
+): Promise<void | FDC3SendMessageResolution> => {
   const fdc3 = localAgent.getFDC3();
   if (!fdc3) {
     return noProviderResult;
@@ -55,12 +66,30 @@ export const getCurrentContext = async (
 
   const channelId = data.channel;
   const contextType = data.contextType;
+  let channel: Channel | undefined;
+  let context: Context | null | undefined;
 
   //keep all channel state with the fdc3 provider
   if (channelId) {
-    const channel = await fdc3.getOrCreateChannel(channelId);
+    try {
+      channel = await fdc3.getOrCreateChannel(channelId);
+    } catch (err: any) {
+      return {
+        data: {},
+        error: { type: err },
+      };
+    }
     if (channel) {
-      const context = await channel.getCurrentContext(contextType);
+      try {
+        context = await channel.getCurrentContext(contextType);
+        console.log("here!!!", context);
+        console.log("get Current Context from Connection", context);
+      } catch (err: any) {
+        return {
+          data: {},
+          error: { type: err },
+        };
+      }
       if (context) {
         return { data: context };
       }
@@ -80,24 +109,25 @@ export const getOrCreateChannel = async (
   }
   const data: ChannelMessageData = message.data as ChannelMessageData;
   const channelId = data.channel;
-
+  let channel: Channel | undefined;
   //get the channel from the provider
+
   try {
-    const channel = await fdc3.getOrCreateChannel(channelId);
-    //serialize back the channel
-    return {
-      data: {
-        id: channel.id,
-        type: channel.type,
-        displayMetadata: channel.displayMetadata,
-      },
-    };
+    channel = await fdc3.getOrCreateChannel(channelId);
   } catch (err: any) {
     return {
       data: {},
       error: { type: err },
     };
   }
+  //serialize back the channel
+  return {
+    data: {
+      id: channel?.id,
+      type: channel?.type,
+      displayMetadata: channel?.displayMetadata,
+    },
+  };
 };
 
 export const leaveCurrentChannel = async (
@@ -130,6 +160,8 @@ export const joinChannel = async (
   const data: ChannelMessageData = message.data as ChannelMessageData;
   const channelId = data.channel;
   const instance = localAgent.localInstances.get(message.source);
+  let channel: Channel | undefined;
+  let listener: Listener | undefined;
   if (!instance) {
     return;
   }
@@ -154,9 +186,24 @@ export const joinChannel = async (
       }
     });
   };
-
-  const channel = await fdc3.getOrCreateChannel(channelId);
-  const listener = await channel.addContextListener("*", joinListener);
+  try {
+    channel = await fdc3.getOrCreateChannel(channelId);
+  } catch (err: any) {
+    return {
+      data: {},
+      error: { type: err },
+    };
+  }
+  if (channel) {
+    try {
+      listener = await channel.addContextListener("*", joinListener);
+    } catch (err: any) {
+      return {
+        data: {},
+        error: { type: err },
+      };
+    }
+  }
   instance.channel = channelId;
   //unsubscribe from any pre-existing channelListener
   if (instance.channelListener) {
@@ -164,7 +211,7 @@ export const joinChannel = async (
   }
   instance.channelListener = listener;
   //get the current context for the new channel
-  const current = await channel.getCurrentContext();
+  const current = await channel?.getCurrentContext();
   if (current) {
     instance.contextListeners.forEach((listener, listenerId) => {
       if (

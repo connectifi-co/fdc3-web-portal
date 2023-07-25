@@ -2,9 +2,9 @@ import {
   Context,
   ContextHandler,
   DisplayMetadata,
-  AppMetadata,
   AppIntent,
   Listener,
+  AppIdentifier,
 } from "@finos/fdc3";
 
 /*
@@ -95,10 +95,18 @@ export type FDC3MessageData =
   | OpenData
   | RaiseIntentData
   | RaiseIntentContextData
+  | IdentifierData
   | EmptyMessage;
 
 export interface EmptyMessage {
   context?: Context;
+}
+
+/*
+  describes data identifying an App
+*/
+export interface IdentifierData {
+  app: AppIdentifier
 }
 
 /*
@@ -169,7 +177,7 @@ export interface FindIntentContextData {
  describe data for the open API
 */
 export interface OpenData {
-  target: AppMetadata;
+  target: AppIdentifier | String | undefined;
   context?: Context | undefined;
 }
 
@@ -179,7 +187,7 @@ export interface OpenData {
 export interface RaiseIntentData {
   intent: string;
   context?: Context | undefined;
-  target?: AppMetadata | undefined;
+  target?: AppIdentifier | undefined;
 }
 
 /*
@@ -187,17 +195,16 @@ export interface RaiseIntentData {
 */
 export interface RaiseIntentContextData {
   context: Context;
-  target?: AppMetadata | undefined;
+  target?: AppIdentifier | undefined;
 }
 
-
-  /*
+/*
     describes an incoming Context message
   */
- export interface ContextMessage {
+export interface ContextMessage {
   context: Context;
   listenerId: string;
- }
+}
 
 /*
  data for intent resolution (from the end user)
@@ -208,7 +215,13 @@ export interface RaiseIntentContextData {
  context?: Context | undefined;
 }*/
 
-export type FDC3ReturnMessageData = {} | RegisterInstanceReturn | ContextMessage | AppIntent[] | AppIntent;
+export type FDC3ReturnMessageData =
+  | {}
+  | null
+  | RegisterInstanceReturn
+  | ContextMessage
+  | AppIntent[]
+  | AppIntent;
 
 export interface RegisterInstanceReturn {
   instanceId: string;

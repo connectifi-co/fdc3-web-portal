@@ -1,6 +1,7 @@
 import { WebAgent } from "@/webAgent/main";
 import { noProviderResult } from "./index";
 import { FDC3Message, RaiseIntentData } from "@/common/types";
+import { IntentResolution } from "@finos/fdc3";
 
 export const raiseIntent = async (
   localAgent: WebAgent,
@@ -11,14 +12,26 @@ export const raiseIntent = async (
     return noProviderResult;
   }
   const messageData = message.data as RaiseIntentData;
-
-  await fdc3.raiseIntent(
-    messageData.intent,
-    messageData.context || { type: "none" },
-    messageData.target
-  );
-
-  return;
+  let resolution: IntentResolution | undefined;
+  try {
+    resolution = await fdc3.raiseIntent(
+      messageData.intent,
+      messageData.context || { type: "none" },
+      messageData.target
+    );
+  } catch (err: any) {
+    return {
+      data: {},
+      error: { type: err },
+    };
+  }
+  return {
+    data: {
+      version: resolution?.version,
+      intent: resolution?.intent,
+      source: resolution?.source,
+    },
+  };
 };
 
 export const raiseIntentForContext = async (
@@ -30,11 +43,23 @@ export const raiseIntentForContext = async (
     return noProviderResult;
   }
   const messageData = message.data as RaiseIntentData;
-
-  await fdc3.raiseIntentForContext(
-    messageData.context || { type: "none" },
-    messageData.target
-  );
-
-  return;
+  let resolution: IntentResolution | undefined;
+  try {
+    resolution = await fdc3.raiseIntentForContext(
+      messageData.context || { type: "none" },
+      messageData.target
+    );
+  } catch (err: any) {
+    return {
+      data: {},
+      error: { type: err },
+    };
+  }
+  return {
+    data: {
+      version: resolution?.version,
+      intent: resolution?.intent,
+      source: resolution?.source,
+    },
+  };
 };
