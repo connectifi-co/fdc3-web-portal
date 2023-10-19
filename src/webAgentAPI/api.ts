@@ -103,7 +103,6 @@ export const createAPI = (connection: FDC3LocalInstance): DesktopAgent => {
             contextType: contextType,
           }
         );
-        console.log("getCurrentContext Result", result);
         if (result === null){
           return result;
         }
