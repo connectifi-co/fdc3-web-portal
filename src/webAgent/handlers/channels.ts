@@ -5,7 +5,7 @@ import {
   ChannelMessageData,
   FDC3SendMessageResolution,
 } from "@/common/types";
-import { Context, Channel, Listener } from "@finos/fdc3";
+import { Context, Channel, Listener } from '@finos/fdc3';
 import { noProviderResult } from "./index";
 import { TOPICS } from "@/common/topics";
 
@@ -17,7 +17,13 @@ export const getSystemChannels = async (
     return noProviderResult;
   }
   const channels = await localAgent.fdc3.getUserChannels();
-  return { data: channels };
+  return { data: channels.map((channel) => {
+    return {
+      id: channel.id,
+      type: channel.type,
+      displayMetadata: channel.displayMetadata,
+    }
+  }) };
 };
 
 export const getCurrentChannel = async (
@@ -82,8 +88,6 @@ export const getCurrentContext = async (
     if (channel) {
       try {
         context = await channel.getCurrentContext(contextType);
-        console.log("here!!!", context);
-        console.log("get Current Context from Connection", context);
       } catch (err: any) {
         return {
           data: {},

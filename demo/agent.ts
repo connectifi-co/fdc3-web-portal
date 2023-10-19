@@ -11,7 +11,7 @@ let fdc3;
 const localAgent = new WebAgent();
 
 document.addEventListener("DOMContentLoaded", async () => {
-  fdc3 = await createAgent("https://dev.connectifi-interop.com", "*@Demo", {
+  fdc3 = await createAgent("https://dev.connectifi-interop.com", "*@sandbox", {
     props: {
       position: "tr"
     },
