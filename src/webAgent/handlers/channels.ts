@@ -5,7 +5,7 @@ import {
   ChannelMessageData,
   FDC3SendMessageResolution,
 } from "@/common/types";
-import { Context, Channel, Listener, DisplayMetadata } from '@finos/fdc3';
+import { Context, Channel, Listener } from '@finos/fdc3';
 import { noProviderResult } from "./index";
 import { TOPICS } from "@/common/topics";
 
