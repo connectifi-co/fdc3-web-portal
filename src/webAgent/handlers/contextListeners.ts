@@ -1,8 +1,7 @@
 import { WebAgent } from "@/webAgent/main";
 import { FDC3Message, ContextListenerData } from "@/common/types";
 import { TOPICS } from "@/common/topics";
-import { Context, Channel } from "@finos/fdc3";
-import { ConnectifiDesktopAgent, ConnectifiEventTypes } from "@connectifi/agent-web";
+import { DesktopAgent, Context, Channel } from "@finos/fdc3";
 
 
 export const addContextListener = async (
@@ -70,12 +69,13 @@ export const addContextListener = async (
     });
 
     //if using Connectifi, add a onConnect listener to handle reconnects
-    const agent : ConnectifiDesktopAgent = localAgent.fdc3 as ConnectifiDesktopAgent;
+    //TO DO: move this onConnect handling into the WebAgent 
+   /* const agent : DesktopAgent = localAgent.fdc3 as DesktopAgent;
     if (localAgent.autosync && agent?.addEventListener) {
       agent.addEventListener(ConnectifiEventTypes.CONNECT,() => {
           loadCurrentContext();
       });
-    }
+    }*/
 
     //send the current context immediately as well
     if (localAgent.autosync){ 
