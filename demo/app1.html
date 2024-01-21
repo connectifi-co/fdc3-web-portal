@@ -162,12 +162,12 @@
                 button.textContent = company.Name;
                 if (isContext) {
                     button.addEventListener('click', () => {
-                        fdc3.raiseIntentForContext({ type: 'fdc3.instrument', id: { ticker: company.Symbol } });
+                        fdc3.raiseIntentForContext({ type: 'fdc3.instrument', name: company.Name, id: { ticker: company.Symbol } });
                     });
                 }
                 else {
                     button.addEventListener('click', () => {
-                        fdc3.raiseIntent('ViewChart', { type: 'fdc3.instrument', id: { ticker: company.Symbol } });
+                        fdc3.raiseIntent('ViewChart', { type: 'fdc3.instrument', name: company.Name, id: { ticker: company.Symbol } });
 
                     });
                 }

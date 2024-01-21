@@ -1,37 +1,60 @@
 <html>
-    <head>
-        <link rel="stylesheet" href="style.css">
-        <script type="module" src="./agent.ts"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const popoutButtons = document.querySelectorAll('.popoutButton');
-                popoutButtons.forEach( button => {
-                    button.addEventListener('click', () => {
-                        window.open(`${window.location.href}single.html`)
-                    });
+
+<head>
+    <link rel="stylesheet" href="style.css">
+    <script type="module">
+        import { createAgent } from "https://dev.connectifi-interop.com/agent/main.bundle.js";
+        import { WebAgent } from "@/main";
+
+        let fdc3;
+        const localAgent = new WebAgent();
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            fdc3 = await createAgent("https://dev.connectifi-interop.com", "*@sandbox", {
+                props: {
+                    position: "tr"
+                }
+            });
+
+            if (fdc3) {
+                localAgent.bind(fdc3);
+                localAgent.allowBroadcastOnDefault = true;
+                document.dispatchEvent(new CustomEvent("fdc3Ready"));
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const popoutButtons = document.querySelectorAll('.popoutButton');
+            popoutButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    window.open(`${window.location.href}single.html`)
                 });
             });
-        </script>
-    </head>
-    <body>
-        <div class='header'>
-            <h1>Connectifi Web Portal</h1>
-        </div>
-          <section>
-            <div class="content">
-                <div class="titleBar">
-                        <button class="popoutButton">+</button>
-                </div>
-             <iframe class="frame" src="/demo/app1.html"></iframe>
-            </div>
-      
-            <div class="content">
-                    <div class="titleBar">
-                            <button class="popoutButton">+</button>
-                        </div>
-                <iframe class="frame" src="/demo/app1.html"></iframe>
-            </div>
+        });
+    </script>
+</head>
 
-        </section>
-    </body>
+<body>
+    <div class='header'>
+        <h1>Connectifi Web Portal</h1>
+    </div>
+    <section>
+        <div class="content">
+            <div class="titleBar">
+                <button class="popoutButton">+</button>
+            </div>
+            <iframe class="frame" src="/demo/app1.html"></iframe>
+        </div>
+
+        <div class="content">
+            <div class="titleBar">
+                <button class="popoutButton">+</button>
+            </div>
+            <iframe class="frame" src="/demo/app1.html"></iframe>
+        </div>
+
+    </section>
+</body>
+
 </html>
