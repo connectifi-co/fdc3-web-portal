@@ -1,7 +1,7 @@
 import { WebAgent } from "@/webAgent/main";
 import { FDC3Message, ContextListenerData } from "@/common/types";
 import { TOPICS } from "@/common/topics";
-import { DesktopAgent, Context, Channel } from "@finos/fdc3";
+import { Context, Channel } from "@finos/fdc3";
 
 
 export const addContextListener = async (
