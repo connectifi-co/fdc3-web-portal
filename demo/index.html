@@ -3,14 +3,14 @@
 <head>
     <link rel="stylesheet" href="style.css">
     <script type="module">
-        import { createAgent } from "https://dev.connectifi-interop.com/agent/main.bundle.js";
+        import { createAgent } from "https://platform.connectifi.app/agent/main.bundle.js";
         import { WebAgent } from "@/main";
 
         let fdc3;
         const localAgent = new WebAgent();
 
         document.addEventListener("DOMContentLoaded", async () => {
-            fdc3 = await createAgent("https://dev.connectifi-interop.com", "*@sandbox", {
+            fdc3 = await createAgent("https://platform.connectifi.app", "*@_global.sandbox", {
                 props: {
                     position: "tr"
                 }
